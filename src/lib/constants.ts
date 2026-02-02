@@ -38,3 +38,23 @@ export const ROLE_CATEGORIES = {
   admin: { label: 'Admin', color: 'bg-blue-100 text-blue-800' },
   general: { label: 'General Staff', color: 'bg-green-100 text-green-800' },
 };
+
+export const NIGERIAN_STATES = [
+  'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno',
+  'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'Gombe', 'Imo', 'Jigawa',
+  'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger',
+  'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara',
+  'FCT (Abuja)'
+];
+
+export const GRADE_OPTIONS = [
+  'First Class',
+  '2:1 (Second Class Upper)',
+  '2:2 (Second Class Lower)',
+  'Third Class',
+  'Pass',
+  'Distinction',
+  'Upper Credit',
+  'Lower Credit',
+  'Merit'
+];

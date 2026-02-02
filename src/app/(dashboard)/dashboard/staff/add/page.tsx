@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LoadingSpinner, BouncingDots } from '@/components/shared/LoadingSpinner';
 import { toast } from '@/components/ui/toaster';
+import { NIGERIAN_STATES, GRADE_OPTIONS } from '@/lib/constants';
 import {
   ArrowLeft,
   ArrowRight,
@@ -199,9 +200,18 @@ export default function AddStaffPage() {
     }
   }, [currentStep]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/,/g, ''); // Remove existing commas
+    if (value === '' || /^\d+$/.test(value)) {
+      const formatted = value ? parseInt(value).toLocaleString() : '';
+      setFormData(prev => ({ ...prev, current_salary: value }));
+      e.target.value = formatted;
+    }
   };
 
   const handleNext = () => {
@@ -387,13 +397,19 @@ export default function AddStaffPage() {
                 </div>
                 <div>
                   <label className="text-sm text-gray-500">State of Origin</label>
-                  <Input
+                  <select
                     name="state_of_origin"
                     value={formData.state_of_origin}
                     onChange={handleChange}
-                    placeholder="Enter state of origin"
-                    className="mt-1"
-                  />
+                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  >
+                    <option value="">Select state</option>
+                    {NIGERIAN_STATES.map((state) => (
+                      <option key={state} value={state}>
+                        {state}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="md:col-span-2">
                   <label className="text-sm text-gray-500">Home Address</label>
@@ -422,11 +438,11 @@ export default function AddStaffPage() {
                   <label className="text-sm text-gray-500">Grade</label>
                   <select name="grade" value={formData.grade} onChange={handleChange} className="w-full h-11 mt-1 px-4 rounded-xl border border-input bg-background">
                     <option value="">Select grade</option>
-                    <option value="First Class">First Class</option>
-                    <option value="2-1">2:1 (Second Class Upper)</option>
-                    <option value="2-2">2:2 (Second Class Lower)</option>
-                    <option value="Third Class">Third Class</option>
-                    <option value="Pass">Pass</option>
+                    {GRADE_OPTIONS.map((grade) => (
+                      <option key={grade} value={grade}>
+                        {grade}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -556,7 +572,14 @@ export default function AddStaffPage() {
                 </div>
                 <div>
                   <label className="text-sm text-gray-500">Monthly Salary (₦) *</label>
-                  <Input name="current_salary" type="number" value={formData.current_salary} onChange={handleChange} placeholder="Enter monthly salary" className="mt-1" />
+                  <Input 
+                    name="current_salary" 
+                    type="text" 
+                    value={formData.current_salary ? parseInt(formData.current_salary).toLocaleString() : ''} 
+                    onChange={handleSalaryChange} 
+                    placeholder="Enter monthly salary" 
+                    className="mt-1" 
+                  />
                 </div>
               </div>
             </div>
