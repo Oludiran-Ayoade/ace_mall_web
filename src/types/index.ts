@@ -38,6 +38,39 @@ export interface User {
   nysc_certificate_url?: string;
   state_of_origin_cert_url?: string;
   
+  // Next of Kin
+  next_of_kin_name?: string;
+  next_of_kin_relationship?: string;
+  next_of_kin_phone?: string;
+  next_of_kin_email?: string;
+  next_of_kin_home_address?: string;
+  next_of_kin_work_address?: string;
+  
+  // Guarantor 1
+  guarantor1_name?: string;
+  guarantor1_phone?: string;
+  guarantor1_occupation?: string;
+  guarantor1_relationship?: string;
+  guarantor1_address?: string;
+  guarantor1_email?: string;
+  guarantor1_passport?: string;
+  guarantor1_national_id?: string;
+  guarantor1_work_id?: string;
+  
+  // Guarantor 2
+  guarantor2_name?: string;
+  guarantor2_phone?: string;
+  guarantor2_occupation?: string;
+  guarantor2_relationship?: string;
+  guarantor2_address?: string;
+  guarantor2_email?: string;
+  guarantor2_passport?: string;
+  guarantor2_national_id?: string;
+  guarantor2_work_id?: string;
+  
+  // Work Experience
+  work_experience?: WorkExperience[];
+  
   // Status
   is_active: boolean;
   is_terminated: boolean;

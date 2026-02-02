@@ -400,6 +400,202 @@ export default function StaffDetailPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Next of Kin */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="w-5 h-5 text-primary" />
+            Next of Kin
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <p className="text-sm text-gray-500">Full Name</p>
+              <p className="font-medium">{staff.next_of_kin_name || 'Not provided'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Relationship</p>
+              <p className="font-medium">{staff.next_of_kin_relationship || 'Not provided'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Phone Number</p>
+              <p className="font-medium">{staff.next_of_kin_phone || 'Not provided'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Email</p>
+              <p className="font-medium">{staff.next_of_kin_email || 'Not provided'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Home Address</p>
+              <p className="font-medium">{staff.next_of_kin_home_address || 'Not provided'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Work Address</p>
+              <p className="font-medium">{staff.next_of_kin_work_address || 'Not provided'}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Guarantor 1 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <UserIcon className="w-5 h-5 text-primary" />
+            Guarantor 1
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <p className="text-sm text-gray-500">Full Name</p>
+              <p className="font-medium">{staff.guarantor1_name || 'Not provided'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Phone Number</p>
+              <p className="font-medium">{staff.guarantor1_phone || 'Not provided'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Occupation</p>
+              <p className="font-medium">{staff.guarantor1_occupation || 'Not provided'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Relationship</p>
+              <p className="font-medium">{staff.guarantor1_relationship || 'Not provided'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Address</p>
+              <p className="font-medium">{staff.guarantor1_address || 'Not provided'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Email</p>
+              <p className="font-medium">{staff.guarantor1_email || 'Not provided'}</p>
+            </div>
+          </div>
+          
+          {/* Guarantor 1 Documents */}
+          <div className="mt-6 pt-6 border-t">
+            <h4 className="text-sm font-semibold text-gray-700 mb-4">Documents</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[
+                { label: 'Passport', url: staff.guarantor1_passport },
+                { label: 'National ID', url: staff.guarantor1_national_id },
+                { label: 'Work ID', url: staff.guarantor1_work_id },
+              ].map((doc) => (
+                <div
+                  key={doc.label}
+                  className={`p-3 border rounded-lg ${
+                    doc.url ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">{doc.label}</span>
+                    {doc.url ? (
+                      <a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">View</a>
+                    ) : (
+                      <span className="text-xs text-gray-400">N/A</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Guarantor 2 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <UserIcon className="w-5 h-5 text-primary" />
+            Guarantor 2
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <p className="text-sm text-gray-500">Full Name</p>
+              <p className="font-medium">{staff.guarantor2_name || 'Not provided'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Phone Number</p>
+              <p className="font-medium">{staff.guarantor2_phone || 'Not provided'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Occupation</p>
+              <p className="font-medium">{staff.guarantor2_occupation || 'Not provided'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Relationship</p>
+              <p className="font-medium">{staff.guarantor2_relationship || 'Not provided'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Address</p>
+              <p className="font-medium">{staff.guarantor2_address || 'Not provided'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Email</p>
+              <p className="font-medium">{staff.guarantor2_email || 'Not provided'}</p>
+            </div>
+          </div>
+          
+          {/* Guarantor 2 Documents */}
+          <div className="mt-6 pt-6 border-t">
+            <h4 className="text-sm font-semibold text-gray-700 mb-4">Documents</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[
+                { label: 'Passport', url: staff.guarantor2_passport },
+                { label: 'National ID', url: staff.guarantor2_national_id },
+                { label: 'Work ID', url: staff.guarantor2_work_id },
+              ].map((doc) => (
+                <div
+                  key={doc.label}
+                  className={`p-3 border rounded-lg ${
+                    doc.url ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">{doc.label}</span>
+                    {doc.url ? (
+                      <a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">View</a>
+                    ) : (
+                      <span className="text-xs text-gray-400">N/A</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Education */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <GraduationCap className="w-5 h-5 text-primary" />
+            Education
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <p className="text-sm text-gray-500">Course of Study</p>
+              <p className="font-medium">{staff.course_of_study || 'Not provided'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Grade</p>
+              <p className="font-medium">{staff.grade || 'Not provided'}</p>
+            </div>
+            <div className="md:col-span-2">
+              <p className="text-sm text-gray-500">Institution</p>
+              <p className="font-medium">{staff.institution || 'Not provided'}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
