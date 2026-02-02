@@ -235,10 +235,78 @@ export default function AddStaffPage() {
     setIsSubmitting(true);
 
     try {
-      const staffData = {
+      // Upload documents to Cloudinary first
+      const uploadedDocs: Record<string, string> = {};
+      const uploadedG1Docs: Record<string, string> = {};
+      const uploadedG2Docs: Record<string, string> = {};
+
+      // Upload staff documents
+      for (const [key, file] of Object.entries(documents)) {
+        if (file) {
+          try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'flutter_uploads');
+            formData.append('folder', 'ace_mall_staff/documents');
+            
+            const response = await fetch('https://api.cloudinary.com/v1_1/desk7uuna/upload', {
+              method: 'POST',
+              body: formData,
+            });
+            const data = await response.json();
+            uploadedDocs[key] = data.secure_url;
+          } catch (error) {
+            console.error(`Failed to upload ${key}:`, error);
+          }
+        }
+      }
+
+      // Upload guarantor 1 documents
+      for (const [key, file] of Object.entries(g1Documents)) {
+        if (file) {
+          try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'flutter_uploads');
+            formData.append('folder', 'ace_mall_staff/guarantors');
+            
+            const response = await fetch('https://api.cloudinary.com/v1_1/desk7uuna/upload', {
+              method: 'POST',
+              body: formData,
+            });
+            const data = await response.json();
+            uploadedG1Docs[key] = data.secure_url;
+          } catch (error) {
+            console.error(`Failed to upload G1 ${key}:`, error);
+          }
+        }
+      }
+
+      // Upload guarantor 2 documents
+      for (const [key, file] of Object.entries(g2Documents)) {
+        if (file) {
+          try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'flutter_uploads');
+            formData.append('folder', 'ace_mall_staff/guarantors');
+            
+            const response = await fetch('https://api.cloudinary.com/v1_1/desk7uuna/upload', {
+              method: 'POST',
+              body: formData,
+            });
+            const data = await response.json();
+            uploadedG2Docs[key] = data.secure_url;
+          } catch (error) {
+            console.error(`Failed to upload G2 ${key}:`, error);
+          }
+        }
+      }
+
+      const staffData: any = {
         full_name: formData.full_name,
         email: formData.email,
-        phone_number: formData.phone_number || undefined,
+        phone: formData.phone_number || undefined,
         gender: formData.gender || undefined,
         date_of_birth: formData.date_of_birth || undefined,
         home_address: formData.home_address || undefined,
@@ -248,11 +316,82 @@ export default function AddStaffPage() {
         department_id: formData.department_id || undefined,
         branch_id: formData.branch_id || undefined,
         employee_id: formData.employee_id || undefined,
-        current_salary: formData.current_salary ? parseFloat(formData.current_salary) : undefined,
+        salary: formData.current_salary ? parseFloat(formData.current_salary) : undefined,
         course_of_study: formData.course_of_study || undefined,
         grade: formData.grade || undefined,
         institution: formData.institution || undefined,
       };
+
+      // Add Next of Kin if provided
+      if (formData.nok_name) {
+        staffData.next_of_kin = {
+          full_name: formData.nok_name,
+          relationship: formData.nok_relationship || undefined,
+          email: formData.nok_email || undefined,
+          phone: formData.nok_phone || undefined,
+          home_address: formData.nok_home_address || undefined,
+          work_address: formData.nok_work_address || undefined,
+        };
+      }
+
+      // Add Guarantor 1 if provided
+      if (formData.g1_name) {
+        staffData.guarantor_1 = {
+          full_name: formData.g1_name,
+          phone: formData.g1_phone || undefined,
+          occupation: formData.g1_occupation || undefined,
+          relationship: formData.g1_relationship || undefined,
+          sex: formData.g1_sex || undefined,
+          age: formData.g1_age ? parseInt(formData.g1_age) : undefined,
+          home_address: formData.g1_address || undefined,
+          email: formData.g1_email || undefined,
+          grade_level: formData.g1_grade_level || undefined,
+        };
+      }
+
+      // Add Guarantor 2 if provided
+      if (formData.g2_name) {
+        staffData.guarantor_2 = {
+          full_name: formData.g2_name,
+          phone: formData.g2_phone || undefined,
+          occupation: formData.g2_occupation || undefined,
+          relationship: formData.g2_relationship || undefined,
+          sex: formData.g2_sex || undefined,
+          age: formData.g2_age ? parseInt(formData.g2_age) : undefined,
+          home_address: formData.g2_address || undefined,
+          email: formData.g2_email || undefined,
+          grade_level: formData.g2_grade_level || undefined,
+        };
+      }
+
+      // Add staff document URLs
+      if (uploadedDocs.passport) staffData.passport_url = uploadedDocs.passport;
+      if (uploadedDocs.validId) staffData.national_id_url = uploadedDocs.validId;
+      if (uploadedDocs.birthCertificate) staffData.birth_certificate_url = uploadedDocs.birthCertificate;
+      if (uploadedDocs.waecCertificate) staffData.waec_certificate_url = uploadedDocs.waecCertificate;
+      if (uploadedDocs.degreeCertificate) staffData.degree_certificate_url = uploadedDocs.degreeCertificate;
+      if (uploadedDocs.nyscCertificate) staffData.nysc_certificate_url = uploadedDocs.nyscCertificate;
+      if (uploadedDocs.stateOfOriginCert) staffData.state_of_origin_cert_url = uploadedDocs.stateOfOriginCert;
+
+      // Add guarantor 1 document URLs
+      if (uploadedG1Docs.Passport) staffData.g1_passport_url = uploadedG1Docs.Passport;
+      if (uploadedG1Docs.NationalId) staffData.g1_national_id_url = uploadedG1Docs.NationalId;
+      if (uploadedG1Docs.WorkId) staffData.g1_work_id_url = uploadedG1Docs.WorkId;
+
+      // Add guarantor 2 document URLs
+      if (uploadedG2Docs.Passport) staffData.g2_passport_url = uploadedG2Docs.Passport;
+      if (uploadedG2Docs.NationalId) staffData.g2_national_id_url = uploadedG2Docs.NationalId;
+      if (uploadedG2Docs.WorkId) staffData.g2_work_id_url = uploadedG2Docs.WorkId;
+
+      // Add work experience if provided
+      if (workExperiences.length > 0) {
+        staffData.work_experience = workExperiences.map(exp => ({
+          company_name: exp.company,
+          position: exp.roles,
+          start_date: exp.startDate,
+          end_date: exp.endDate || undefined,
+        }));
+      }
 
       await api.createStaff(staffData);
       toast({ title: 'Staff created successfully!', variant: 'success' });
