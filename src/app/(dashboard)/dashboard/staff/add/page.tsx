@@ -550,6 +550,21 @@ export default function AddStaffPage() {
                     ))}
                   </select>
                 </div>
+                <div>
+                  <label className="text-sm text-gray-500">Marital Status</label>
+                  <select
+                    name="marital_status"
+                    value={formData.marital_status}
+                    onChange={handleChange}
+                    className="w-full h-11 mt-1 px-4 rounded-xl border border-input bg-background"
+                  >
+                    <option value="">Select marital status</option>
+                    <option value="Single">Single</option>
+                    <option value="Married">Married</option>
+                    <option value="Divorced">Divorced</option>
+                    <option value="Widowed">Widowed</option>
+                  </select>
+                </div>
                 <div className="md:col-span-2">
                   <label className="text-sm text-gray-500">Home Address</label>
                   <Input

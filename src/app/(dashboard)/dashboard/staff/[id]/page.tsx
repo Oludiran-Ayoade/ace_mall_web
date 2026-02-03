@@ -255,6 +255,39 @@ export default function StaffDetailPage() {
         </CardContent>
       </Card>
 
+      {/* Work Experience */}
+      {staff.work_experience && staff.work_experience.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Briefcase className="w-5 h-5 text-primary" />
+              Work Experience
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {staff.work_experience.map((exp, index) => (
+                <div
+                  key={index}
+                  className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl"
+                >
+                  <div className="p-2 bg-blue-100 rounded-full">
+                    <Briefcase className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900">{exp.company_name}</p>
+                    <p className="text-sm text-gray-600">{exp.position}</p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {exp.start_date} - {exp.end_date || 'Present'}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Promotion History */}
       {promotions.length > 0 && (
         <Card>
