@@ -206,38 +206,34 @@ export default function UploadDocumentsPage() {
                   </div>
                   
                   <div className="flex gap-2">
-                    <label className="flex-1">
-                      <input
-                        type="file"
-                        accept="image/*,application/pdf"
-                        onChange={(e) => handleFileSelect(docField, e)}
-                        disabled={isUploading}
-                        className="hidden"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        disabled={isUploading}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          (e.currentTarget.previousElementSibling as HTMLInputElement)?.click();
-                        }}
-                      >
-                        {isUploading ? (
-                          <>
-                            <LoadingSpinner size="sm" />
-                            <span className="ml-2">Uploading...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Upload className="w-4 h-4 mr-2" />
-                            {existingUrl ? 'Replace' : 'Upload'}
-                          </>
-                        )}
-                      </Button>
-                    </label>
+                    <input
+                      id={`file-staff-${docField.key}`}
+                      type="file"
+                      accept="image/*,application/pdf"
+                      onChange={(e) => handleFileSelect(docField, e)}
+                      disabled={isUploading}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      disabled={isUploading}
+                      onClick={() => document.getElementById(`file-staff-${docField.key}`)?.click()}
+                    >
+                      {isUploading ? (
+                        <>
+                          <LoadingSpinner size="sm" />
+                          <span className="ml-2">Uploading...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-4 h-4 mr-2" />
+                          {existingUrl ? 'Replace' : 'Upload'}
+                        </>
+                      )}
+                    </Button>
                     
                     {existingUrl && (
                       <Button
@@ -276,38 +272,34 @@ export default function UploadDocumentsPage() {
                   </div>
                   
                   <div className="flex gap-2">
-                    <label className="flex-1">
-                      <input
-                        type="file"
-                        accept="image/*,application/pdf"
-                        onChange={(e) => handleFileSelect(docField, e)}
-                        disabled={isUploading}
-                        className="hidden"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        disabled={isUploading}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          (e.currentTarget.previousElementSibling as HTMLInputElement)?.click();
-                        }}
-                      >
-                        {isUploading ? (
-                          <>
-                            <LoadingSpinner size="sm" />
-                            <span className="ml-2">Uploading...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Upload className="w-4 h-4 mr-2" />
-                            {existingUrl ? 'Replace' : 'Upload'}
-                          </>
-                        )}
-                      </Button>
-                    </label>
+                    <input
+                      id={`file-g1-${docField.key}`}
+                      type="file"
+                      accept="image/*,application/pdf"
+                      onChange={(e) => handleFileSelect(docField, e)}
+                      disabled={isUploading}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      disabled={isUploading}
+                      onClick={() => document.getElementById(`file-g1-${docField.key}`)?.click()}
+                    >
+                      {isUploading ? (
+                        <>
+                          <LoadingSpinner size="sm" />
+                          <span className="ml-2">Uploading...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-4 h-4 mr-2" />
+                          {existingUrl ? 'Replace' : 'Upload'}
+                        </>
+                      )}
+                    </Button>
                     
                     {existingUrl && (
                       <Button
@@ -346,38 +338,34 @@ export default function UploadDocumentsPage() {
                   </div>
                   
                   <div className="flex gap-2">
-                    <label className="flex-1">
-                      <input
-                        type="file"
-                        accept="image/*,application/pdf"
-                        onChange={(e) => handleFileSelect(docField, e)}
-                        disabled={isUploading}
-                        className="hidden"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        disabled={isUploading}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          (e.currentTarget.previousElementSibling as HTMLInputElement)?.click();
-                        }}
-                      >
-                        {isUploading ? (
-                          <>
-                            <LoadingSpinner size="sm" />
-                            <span className="ml-2">Uploading...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Upload className="w-4 h-4 mr-2" />
-                            {existingUrl ? 'Replace' : 'Upload'}
-                          </>
-                        )}
-                      </Button>
-                    </label>
+                    <input
+                      id={`file-g2-${docField.key}`}
+                      type="file"
+                      accept="image/*,application/pdf"
+                      onChange={(e) => handleFileSelect(docField, e)}
+                      disabled={isUploading}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      disabled={isUploading}
+                      onClick={() => document.getElementById(`file-g2-${docField.key}`)?.click()}
+                    >
+                      {isUploading ? (
+                        <>
+                          <LoadingSpinner size="sm" />
+                          <span className="ml-2">Uploading...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-4 h-4 mr-2" />
+                          {existingUrl ? 'Replace' : 'Upload'}
+                        </>
+                      )}
+                    </Button>
                     
                     {existingUrl && (
                       <Button
