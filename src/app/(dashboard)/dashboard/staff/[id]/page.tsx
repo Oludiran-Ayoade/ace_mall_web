@@ -67,7 +67,6 @@ export default function StaffDetailPage() {
         setAllRoles(Array.isArray(rolesData) ? rolesData : []);
         setSelectedRoleId(staffResponse.user?.role_id || '');
       } catch (error) {
-        console.error('Failed to fetch staff:', error);
         setStaff(null);
         setPromotions([]);
         setReviews([]);
@@ -105,7 +104,6 @@ export default function StaffDetailPage() {
       setIsEditingRole(false);
       toast.success('Role updated successfully!');
     } catch (error) {
-      console.error('Failed to update role:', error);
       toast.error('Failed to update role. Please try again.');
     } finally {
       setIsSavingRole(false);

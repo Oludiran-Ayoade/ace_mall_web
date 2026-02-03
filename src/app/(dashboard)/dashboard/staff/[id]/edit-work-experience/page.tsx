@@ -47,7 +47,6 @@ export default function EditWorkExperiencePage() {
           setWorkExperiences([{ company_name: '', position: '', start_date: '', end_date: '' }]);
         }
       } catch (error) {
-        console.error('Failed to fetch staff:', error);
         toast({ title: 'Failed to load staff data', variant: 'destructive' });
       } finally {
         setIsLoading(false);
@@ -94,7 +93,6 @@ export default function EditWorkExperiencePage() {
       toast({ title: 'Work experience updated successfully!', variant: 'success' });
       router.push(`/dashboard/staff/${staffId}`);
     } catch (error) {
-      console.error('Failed to update work experience:', error);
       toast({ 
         title: 'Failed to update work experience', 
         description: error instanceof Error ? error.message : 'Please try again',

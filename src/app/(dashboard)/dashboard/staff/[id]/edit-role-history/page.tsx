@@ -70,7 +70,6 @@ export default function EditRoleHistoryPage() {
           }]);
         }
       } catch (error) {
-        console.error('Failed to fetch data:', error);
         toast({ title: 'Failed to load data', variant: 'destructive' });
       } finally {
         setIsLoading(false);
@@ -113,7 +112,6 @@ export default function EditRoleHistoryPage() {
       toast({ title: 'Role history updated successfully!', variant: 'success' });
       router.push(`/dashboard/staff/${staffId}`);
     } catch (error) {
-      console.error('Failed to update role history:', error);
       toast({ title: 'Failed to update role history', variant: 'destructive' });
     } finally {
       setIsSaving(false);
