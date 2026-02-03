@@ -83,10 +83,21 @@ export default function StaffDetailPage() {
     try {
       await api.updateStaffProfile(staffId, { role_id: selectedRoleId });
       
-      // Refresh staff data to get updated role name
-      const staffResponse = await api.getStaffById(staffId);
-      setStaff(staffResponse.user || null);
+      // Find the new role name from allRoles
+      const newRole = allRoles.find(r => r.id === selectedRoleId);
+      const newRoleName = newRole?.name || staff?.role_name || '';
+      
+      // Update staff with new role immediately
+      if (staff) {
+        setStaff({
+          ...staff,
+          role_id: selectedRoleId,
+          role_name: newRoleName,
+        });
+      }
+      
       setIsEditingRole(false);
+      alert('Role updated successfully!');
     } catch (error) {
       console.error('Failed to update role:', error);
       alert('Failed to update role. Please try again.');
