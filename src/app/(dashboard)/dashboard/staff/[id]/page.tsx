@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import api from '@/lib/api';
-import { User, PromotionHistory, WeeklyReview } from '@/types';
+import { User, PromotionHistory, WeeklyReview, Role } from '@/types';
 import { formatDate, formatCurrency, getInitials } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,14 +38,19 @@ export default function StaffDetailPage() {
   const [promotions, setPromotions] = useState<PromotionHistory[]>([]);
   const [reviews, setReviews] = useState<WeeklyReview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditingRole, setIsEditingRole] = useState(false);
+  const [allRoles, setAllRoles] = useState<Role[]>([]);
+  const [selectedRoleId, setSelectedRoleId] = useState<string>('');
+  const [isSavingRole, setIsSavingRole] = useState(false);
 
   useEffect(() => {
     const fetchStaffData = async () => {
       try {
-        const [staffResponse, promotionData, reviewData] = await Promise.all([
+        const [staffResponse, promotionData, reviewData, rolesData] = await Promise.all([
           api.getStaffById(staffId),
           api.getPromotionHistory(staffId).catch(() => []),
           api.getStaffReviews(staffId).catch(() => ({ reviews: [] })),
+          api.getRoles().catch(() => []),
         ]);
         setStaff(staffResponse.user || null);
         console.log('Permission level from API:', staffResponse.permission_level);
@@ -53,6 +58,8 @@ export default function StaffDetailPage() {
         setPromotions(Array.isArray(promotionData) ? promotionData : []);
         const reviewsArray = reviewData?.reviews || [];
         setReviews(Array.isArray(reviewsArray) ? reviewsArray : []);
+        setAllRoles(Array.isArray(rolesData) ? rolesData : []);
+        setSelectedRoleId(staffResponse.user?.role_id || '');
       } catch (error) {
         console.error('Failed to fetch staff:', error);
         setStaff(null);
@@ -65,6 +72,28 @@ export default function StaffDetailPage() {
 
     fetchStaffData();
   }, [staffId]);
+
+  const handleSaveRole = async () => {
+    if (!selectedRoleId || selectedRoleId === staff?.role_id) {
+      setIsEditingRole(false);
+      return;
+    }
+
+    setIsSavingRole(true);
+    try {
+      await api.updateStaffProfile(staffId, { role_id: selectedRoleId });
+      
+      // Refresh staff data to get updated role name
+      const staffResponse = await api.getStaffById(staffId);
+      setStaff(staffResponse.user || null);
+      setIsEditingRole(false);
+    } catch (error) {
+      console.error('Failed to update role:', error);
+      alert('Failed to update role. Please try again.');
+    } finally {
+      setIsSavingRole(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -117,7 +146,55 @@ export default function StaffDetailPage() {
             )}
             <div className="text-center sm:text-left flex-1">
               <h1 className="text-2xl font-bold text-gray-900">{staff.full_name}</h1>
-              <p className="text-gray-500">{staff.role_name}</p>
+              
+              {/* Role Display/Edit */}
+              {isEditingRole ? (
+                <div className="flex items-center gap-2 mt-2">
+                  <select
+                    value={selectedRoleId}
+                    onChange={(e) => setSelectedRoleId(e.target.value)}
+                    className="px-3 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+                  >
+                    <option value="">Select Role</option>
+                    {allRoles.map((role) => (
+                      <option key={role.id} value={role.id}>
+                        {role.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Button
+                    size="sm"
+                    onClick={handleSaveRole}
+                    disabled={isSavingRole}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    {isSavingRole ? 'Saving...' : 'Save'}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setIsEditingRole(false);
+                      setSelectedRoleId(staff.role_id || '');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <p className="text-gray-500">{staff.role_name}</p>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setIsEditingRole(true)}
+                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+              
               <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-2">
                 {staff.department_name && (
                   <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
