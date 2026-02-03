@@ -439,6 +439,74 @@ export default function StaffDetailPage() {
         </CardContent>
       </Card>
 
+      {/* Role History (Roles Held at Ace Mall) */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between w-full">
+            <CardTitle className="flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-primary" />
+              Roles Held at Ace Mall
+            </CardTitle>
+            <Button 
+              size="lg" 
+              className="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 shadow-lg"
+              onClick={() => {
+                router.push(`/dashboard/staff/${staffId}/edit-role-history`);
+              }}
+            >
+              <Edit className="w-5 h-5 mr-2" />
+              EDIT
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {staff.role_history && staff.role_history.length > 0 ? (
+            <div className="space-y-4">
+              {staff.role_history.map((role, index) => (
+                <div
+                  key={index}
+                  className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl"
+                >
+                  <div className="p-2 bg-purple-100 rounded-full">
+                    <Briefcase className="w-4 h-4 text-purple-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-gray-900">{role.role_name}</p>
+                    {(role.department_name || role.branch_name) && (
+                      <p className="text-sm text-purple-600 font-medium">
+                        {[role.department_name, role.branch_name].filter(Boolean).join(' • ')}
+                      </p>
+                    )}
+                    <p className="text-sm text-gray-500 mt-1 flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      {formatDate(role.start_date)} - {role.end_date ? formatDate(role.end_date) : 'Present'}
+                    </p>
+                    {role.promotion_reason && (
+                      <p className="text-sm text-gray-600 mt-2 italic">"{role.promotion_reason}"</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500 mb-4">No role history recorded at Ace Mall</p>
+              <Button 
+                size="lg"
+                className="bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-4 shadow-lg"
+                onClick={() => {
+                  router.push(`/dashboard/staff/${staffId}/edit-role-history`);
+                }}
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                ADD ROLE HISTORY
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Promotion & Transfer History */}
       <Card>
         <CardHeader>

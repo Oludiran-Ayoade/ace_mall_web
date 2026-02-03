@@ -437,6 +437,13 @@ class ApiClient {
     });
   }
 
+  async updateRoleHistory(staffId: string, roleHistory: any[]): Promise<{ message: string }> {
+    return this.request(`/staff/${staffId}/role-history`, {
+      method: 'PUT',
+      body: JSON.stringify({ role_history: roleHistory }),
+    });
+  }
+
   async uploadGuarantorDocument(
     staffId: string, 
     guarantorNumber: number, 

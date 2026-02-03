@@ -71,6 +71,9 @@ export interface User {
   // Work Experience
   work_experience?: WorkExperience[];
   
+  // Role History (roles held at Ace Mall)
+  role_history?: RoleHistory[];
+  
   // Status
   is_active: boolean;
   is_terminated: boolean;
@@ -195,6 +198,16 @@ export interface WorkExperience {
   position: string;
   start_date?: string;
   end_date?: string;
+}
+
+export interface RoleHistory {
+  id: string;
+  role_name: string;
+  department_name?: string;
+  branch_name?: string;
+  start_date: string;
+  end_date?: string;
+  promotion_reason?: string;
 }
 
 export interface PromotionHistory {
