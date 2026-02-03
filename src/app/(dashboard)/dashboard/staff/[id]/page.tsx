@@ -45,7 +45,7 @@ export default function StaffDetailPage() {
           api.getPromotionHistory(staffId).catch(() => []),
           api.getStaffReviews(staffId).catch(() => ({ reviews: [] })),
         ]);
-        console.log('📊 Staff Data:', staffData);
+        console.log('📊 Full Staff Data:', JSON.stringify(staffData, null, 2));
         console.log('📊 Work Experience:', staffData?.work_experience);
         console.log('📊 Promotion Data:', promotionData);
         setStaff(staffData || null);
