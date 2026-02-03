@@ -598,14 +598,12 @@ export default function StaffDetailPage() {
                     <span className="text-sm font-medium">{doc.label}</span>
                   </div>
                   {doc.url ? (
-                    <a
-                      href={doc.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => setViewingDocument({ url: doc.url!, title: doc.label })}
                       className="text-xs text-primary hover:underline"
                     >
                       View
-                    </a>
+                    </button>
                   ) : (
                     <span className="text-xs text-gray-400">Not uploaded</span>
                   )}
