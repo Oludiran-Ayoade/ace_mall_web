@@ -59,15 +59,12 @@ class ApiClient {
     }
 
     const url = `${this.baseUrl}${endpoint}`;
-    console.log(`[API] Fetching: ${url}`);
 
     try {
       const response = await fetch(url, {
         ...options,
         headers,
       });
-
-      console.log(`[API] Response status: ${response.status} for ${endpoint}`);
 
       if (response.status === 401) {
         // Only redirect on actual auth failures, not on navigation
@@ -84,7 +81,6 @@ class ApiClient {
       }
 
       const data = await response.json();
-      console.log(`[API] Data received for ${endpoint}:`, typeof data, Array.isArray(data) ? data.length : 'object');
       return data;
     } catch (error) {
       console.error(`[API] Error fetching ${endpoint}:`, error);

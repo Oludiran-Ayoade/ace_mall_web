@@ -45,9 +45,6 @@ export default function StaffDetailPage() {
           api.getPromotionHistory(staffId).catch(() => []),
           api.getStaffReviews(staffId).catch(() => ({ reviews: [] })),
         ]);
-        console.log('📊 Full Staff Data:', JSON.stringify(staffData, null, 2));
-        console.log('📊 Work Experience:', staffData?.work_experience);
-        console.log('📊 Promotion Data:', promotionData);
         setStaff(staffData || null);
         setPromotions(Array.isArray(promotionData) ? promotionData : []);
         const reviewsArray = reviewData?.reviews || [];
@@ -292,10 +289,11 @@ export default function StaffDetailPage() {
                     <Briefcase className="w-4 h-4 text-blue-600" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-gray-900">{exp.company_name}</p>
-                    <p className="text-sm text-gray-600">{exp.position}</p>
-                    <p className="text-sm text-gray-500 mt-1">
-                      {exp.start_date} - {exp.end_date || 'Present'}
+                    <p className="font-semibold text-gray-900">{exp.position}</p>
+                    <p className="text-sm text-green-600 font-medium">{exp.company_name}</p>
+                    <p className="text-sm text-gray-500 mt-1 flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      {exp.start_date ? formatDate(exp.start_date) : ''} - {exp.end_date ? formatDate(exp.end_date) : 'Present'}
                     </p>
                   </div>
                 </div>

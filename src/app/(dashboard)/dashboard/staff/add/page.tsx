@@ -393,10 +393,6 @@ export default function AddStaffPage() {
         }));
       }
 
-      console.log('📤 Work Experiences State:', workExperiences);
-      console.log('📤 Sending staffData.work_experience:', staffData.work_experience);
-      console.log('📤 Full staffData being sent:', JSON.stringify(staffData, null, 2));
-
       await api.createStaff(staffData);
       toast({ title: 'Staff created successfully!', variant: 'success' });
       router.push('/dashboard/staff');
