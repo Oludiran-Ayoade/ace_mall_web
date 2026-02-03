@@ -9,6 +9,7 @@ import { formatDate, formatCurrency, getInitials } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
+import { toast } from 'react-toastify';
 import {
   ArrowLeft,
   User as UserIcon,
@@ -100,10 +101,10 @@ export default function StaffDetailPage() {
       }
       
       setIsEditingRole(false);
-      alert('Role updated successfully!');
+      toast.success('Role updated successfully!');
     } catch (error) {
       console.error('Failed to update role:', error);
-      alert('Failed to update role. Please try again.');
+      toast.error('Failed to update role. Please try again.');
     } finally {
       setIsSavingRole(false);
     }

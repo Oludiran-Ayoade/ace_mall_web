@@ -4,6 +4,8 @@ import '@/styles/globals.css';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { QueryProvider } from '@/contexts/QueryProvider';
 import { Toaster } from '@/components/ui/toaster';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -32,6 +34,7 @@ export default function RootLayout({
           <AuthProvider>
             {children}
             <Toaster />
+            <ToastContainer position="top-right" autoClose={3000} />
           </AuthProvider>
         </QueryProvider>
       </body>
