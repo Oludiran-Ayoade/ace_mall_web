@@ -6,7 +6,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import api from '@/lib/api';
 import { User, Branch, Department } from '@/types';
 import { getInitials, formatCurrency, getRoleCategory } from '@/lib/utils';
-import { Card, CardContent } from '@/components/ui/card';
+import { getStaffProfileUrl } from '@/lib/urlEncoder';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
@@ -248,7 +249,7 @@ export default function StaffListPage() {
 
 function StaffCard({ staff }: { staff: User }) {
   return (
-    <Link href={`/dashboard/staff/${staff.id}`} className="block">
+    <Link href={getStaffProfileUrl(staff.id)} className="block">
       <Card className="hover:shadow-lg transition-shadow cursor-pointer">
         <CardContent className="pt-6">
           <div className="flex items-start gap-4">

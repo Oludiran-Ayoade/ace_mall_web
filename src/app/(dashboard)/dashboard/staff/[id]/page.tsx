@@ -6,6 +6,7 @@ import Link from 'next/link';
 import api from '@/lib/api';
 import { User, PromotionHistory, WeeklyReview, Role } from '@/types';
 import { formatDate, formatCurrency, getInitials } from '@/lib/utils';
+import { decodeStaffId, isValidUUID } from '@/lib/urlEncoder';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
@@ -32,7 +33,10 @@ import {
 export default function StaffDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const staffId = params.id as string;
+  const encodedId = params.id as string;
+  
+  // Decode the staff ID if it's encoded, otherwise use as-is
+  const staffId = isValidUUID(encodedId) ? encodedId : decodeStaffId(encodedId);
 
   const [staff, setStaff] = useState<User | null>(null);
   const [permissionLevel, setPermissionLevel] = useState<string>('view_basic');
