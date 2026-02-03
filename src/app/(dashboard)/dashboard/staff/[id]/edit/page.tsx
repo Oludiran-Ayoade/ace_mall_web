@@ -3,14 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import api from '@/lib/api';
-import { User, Branch, Department, Role } from '@/types';
+import { User, Branch, Department, Role, WorkExperience } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { toast } from '@/components/ui/toaster';
 import { NIGERIAN_STATES, GRADE_OPTIONS } from '@/lib/constants';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, Briefcase } from 'lucide-react';
 
 export default function EditStaffPage() {
   const params = useParams();
@@ -24,6 +24,7 @@ export default function EditStaffPage() {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
+  const [workExperiences, setWorkExperiences] = useState<WorkExperience[]>([]);
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -80,6 +81,18 @@ export default function EditStaffPage() {
             grade: staffData.grade || '',
             institution: staffData.institution || '',
           });
+          
+          // Load work experiences
+          if (staffData.work_experience && Array.isArray(staffData.work_experience)) {
+            setWorkExperiences(staffData.work_experience.map((exp: any) => ({
+              id: exp.id || '',
+              user_id: staffData.id,
+              company_name: exp.company_name || '',
+              position: exp.position || '',
+              start_date: exp.start_date || '',
+              end_date: exp.end_date || '',
+            })));
+          }
         }
       } catch (error) {
         console.error('Failed to fetch data:', error);
@@ -95,6 +108,27 @@ export default function EditStaffPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddWorkExperience = () => {
+    setWorkExperiences(prev => [...prev, {
+      id: '',
+      user_id: staffId,
+      company_name: '',
+      position: '',
+      start_date: '',
+      end_date: '',
+    }]);
+  };
+
+  const handleWorkExperienceChange = (index: number, field: keyof WorkExperience, value: string) => {
+    setWorkExperiences(prev => prev.map((exp, i) => 
+      i === index ? { ...exp, [field]: value } : exp
+    ));
+  };
+
+  const handleDeleteWorkExperience = (index: number) => {
+    setWorkExperiences(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -121,7 +155,16 @@ export default function EditStaffPage() {
         institution: formData.institution || undefined,
       };
 
+      // Update basic profile
       await api.updateStaffProfile(staffId, updateData);
+      
+      // Update work experience separately
+      const validWorkExperiences = workExperiences.filter(
+        exp => exp.company_name.trim() !== '' || exp.position.trim() !== ''
+      );
+      if (validWorkExperiences.length > 0) {
+        await api.updateWorkExperience(staffId, validWorkExperiences);
+      }
       toast({ title: 'Staff updated successfully!', variant: 'success' });
       router.push(`/dashboard/staff/${staffId}`);
     } catch (error) {
@@ -391,6 +434,90 @@ export default function EditStaffPage() {
                 />
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Work Experience */}
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-lg flex items-center gap-2">
+                <Briefcase className="w-5 h-5" />
+                Work Experience
+              </h3>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAddWorkExperience}
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Add Experience
+              </Button>
+            </div>
+
+            {workExperiences.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No work experience added. Click "Add Experience" to add one.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {workExperiences.map((exp, index) => (
+                  <div key={index} className="p-4 border border-gray-200 rounded-lg bg-gray-50">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-medium text-sm text-gray-700">Experience #{index + 1}</h4>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteWorkExperience(index)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-sm text-gray-500">Company Name</label>
+                        <Input
+                          value={exp.company_name}
+                          onChange={(e) => handleWorkExperienceChange(index, 'company_name', e.target.value)}
+                          placeholder="Enter company name"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">Position</label>
+                        <Input
+                          value={exp.position}
+                          onChange={(e) => handleWorkExperienceChange(index, 'position', e.target.value)}
+                          placeholder="Enter position"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">Start Date</label>
+                        <Input
+                          type="date"
+                          value={exp.start_date}
+                          onChange={(e) => handleWorkExperienceChange(index, 'start_date', e.target.value)}
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">End Date (Leave empty if current)</label>
+                        <Input
+                          type="date"
+                          value={exp.end_date}
+                          onChange={(e) => handleWorkExperienceChange(index, 'end_date', e.target.value)}
+                          className="mt-1"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 

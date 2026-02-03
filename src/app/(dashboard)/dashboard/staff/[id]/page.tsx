@@ -138,14 +138,17 @@ export default function StaffDetailPage() {
                 </span>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Link href={`/dashboard/staff/${staffId}/edit`}>
-                <Button variant="outline">
-                  <Edit className="w-4 h-4 mr-2" />
-                  Edit
-                </Button>
-              </Link>
-            </div>
+            {/* Only HR/CEO/COO can edit staff profiles */}
+            {permissionLevel === 'view_full' && (
+              <div className="flex gap-2">
+                <Link href={`/dashboard/staff/${staffId}/edit`}>
+                  <Button variant="outline">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Quick Stats */}
