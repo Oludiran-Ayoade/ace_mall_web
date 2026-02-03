@@ -58,10 +58,6 @@ export default function StaffDetailPage() {
           api.getRoles().catch(() => []),
         ]);
         setStaff(staffResponse.user || null);
-        console.log('Permission level from API:', staffResponse.permission_level);
-        console.log('Guarantor 2 Passport:', staffResponse.user?.guarantor2_passport);
-        console.log('Guarantor 2 National ID:', staffResponse.user?.guarantor2_national_id);
-        console.log('Guarantor 2 Work ID:', staffResponse.user?.guarantor2_work_id);
         setPermissionLevel(staffResponse.permission_level || 'view_basic');
         setPromotions(Array.isArray(promotionData) ? promotionData : []);
         const reviewsArray = reviewData?.reviews || [];
@@ -392,7 +388,6 @@ export default function StaffDetailPage() {
               size="lg" 
               className="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 shadow-lg"
               onClick={() => {
-                console.log('EDIT BUTTON CLICKED! Navigating to edit work experience');
                 router.push(`/dashboard/staff/${staffId}/edit-work-experience`);
               }}
             >
@@ -431,7 +426,6 @@ export default function StaffDetailPage() {
                 size="lg"
                 className="bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-4 shadow-lg"
                 onClick={() => {
-                  console.log('ADD BUTTON CLICKED! Navigating to edit work experience');
                   router.push(`/dashboard/staff/${staffId}/edit-work-experience`);
                 }}
               >

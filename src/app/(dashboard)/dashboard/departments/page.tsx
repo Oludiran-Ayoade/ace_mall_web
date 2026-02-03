@@ -63,7 +63,6 @@ export default function DepartmentsPage() {
           console.error('Failed to fetch departments:', err);
           return [];
         });
-        console.log('Departments loaded:', deptData?.length || 0);
         setDepartments(Array.isArray(deptData) ? deptData : []);
 
         // Fetch branches (public endpoint)
@@ -71,7 +70,6 @@ export default function DepartmentsPage() {
           console.error('Failed to fetch branches:', err);
           return [];
         });
-        console.log('Branches loaded:', branchData?.length || 0);
         setBranches(Array.isArray(branchData) ? branchData : []);
 
         // Fetch staff (requires auth)
@@ -79,7 +77,6 @@ export default function DepartmentsPage() {
           console.error('Failed to fetch staff:', err);
           return [];
         });
-        console.log('Staff loaded:', staffData?.length || 0);
         setStaff(Array.isArray(staffData) ? staffData : []);
       } catch (error) {
         console.error('Failed to fetch data:', error);

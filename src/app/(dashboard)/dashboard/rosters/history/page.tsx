@@ -70,7 +70,6 @@ export default function RosterHistoryPage() {
       // Fetch roster history from backend
       // For now, set empty array since backend doesn't have this endpoint yet
       setRosters([]);
-      console.log('Roster history will be implemented when backend API is available');
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {
