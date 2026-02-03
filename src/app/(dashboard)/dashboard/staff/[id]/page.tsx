@@ -45,6 +45,9 @@ export default function StaffDetailPage() {
           api.getPromotionHistory(staffId).catch(() => []),
           api.getStaffReviews(staffId).catch(() => ({ reviews: [] })),
         ]);
+        console.log('📊 Staff Data:', staffData);
+        console.log('📊 Work Experience:', staffData?.work_experience);
+        console.log('📊 Promotion Data:', promotionData);
         setStaff(staffData || null);
         setPromotions(Array.isArray(promotionData) ? promotionData : []);
         const reviewsArray = reviewData?.reviews || [];
@@ -270,15 +273,15 @@ export default function StaffDetailPage() {
       </Card>
 
       {/* Work Experience */}
-      {staff.work_experience && staff.work_experience.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Briefcase className="w-5 h-5 text-primary" />
-              Work Experience
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Briefcase className="w-5 h-5 text-primary" />
+            Work Experience
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {staff.work_experience && staff.work_experience.length > 0 ? (
             <div className="space-y-4">
               {staff.work_experience.map((exp, index) => (
                 <div
@@ -298,20 +301,25 @@ export default function StaffDetailPage() {
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          ) : (
+            <div className="text-center py-8">
+              <Briefcase className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500">No work experience recorded</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Promotion & Transfer History */}
-      {promotions.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              Promotion & Transfer History
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            Promotion & Transfer History
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {promotions.length > 0 ? (
             <div className="space-y-4">
               {promotions.map((promo) => {
                 const isTransfer = promo.type === 'Transfer' || promo.type === 'Transfer & Promotion';
@@ -370,9 +378,14 @@ export default function StaffDetailPage() {
                 );
               })}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          ) : (
+            <div className="text-center py-8">
+              <TrendingUp className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500">No promotion or transfer history</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Recent Reviews */}
       {reviews.length > 0 && (
