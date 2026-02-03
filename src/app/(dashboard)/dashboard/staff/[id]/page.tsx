@@ -10,6 +10,7 @@ import { decodeStaffId, isValidUUID } from '@/lib/urlEncoder';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
+import { DocumentViewer } from '@/components/shared/DocumentViewer';
 import { toast } from 'react-toastify';
 import {
   ArrowLeft,
@@ -47,6 +48,7 @@ export default function StaffDetailPage() {
   const [allRoles, setAllRoles] = useState<Role[]>([]);
   const [selectedRoleId, setSelectedRoleId] = useState<string>('');
   const [isSavingRole, setIsSavingRole] = useState(false);
+  const [viewingDocument, setViewingDocument] = useState<{ url: string; title: string } | null>(null);
 
   useEffect(() => {
     const fetchStaffData = async () => {
@@ -710,7 +712,12 @@ export default function StaffDetailPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm">{doc.label}</span>
                     {doc.url ? (
-                      <a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">View</a>
+                      <button
+                        onClick={() => setViewingDocument({ url: doc.url!, title: `Guarantor 1 - ${doc.label}` })}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        View
+                      </button>
                     ) : (
                       <span className="text-xs text-gray-400">N/A</span>
                     )}
@@ -778,7 +785,12 @@ export default function StaffDetailPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm">{doc.label}</span>
                     {doc.url ? (
-                      <a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">View</a>
+                      <button
+                        onClick={() => setViewingDocument({ url: doc.url!, title: `Guarantor 2 - ${doc.label}` })}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        View
+                      </button>
                     ) : (
                       <span className="text-xs text-gray-400">N/A</span>
                     )}
@@ -816,6 +828,15 @@ export default function StaffDetailPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Document Viewer Modal */}
+      {viewingDocument && (
+        <DocumentViewer
+          url={viewingDocument.url}
+          title={viewingDocument.title}
+          onClose={() => setViewingDocument(null)}
+        />
+      )}
     </div>
   );
 }

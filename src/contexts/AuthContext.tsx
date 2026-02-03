@@ -71,21 +71,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    console.log('🔑 AuthContext.login called with email:', email);
     try {
-      console.log('📡 Calling api.login...');
       const response = await api.login(email, password);
-      console.log('✅ API login successful, response:', response);
-      console.log('👤 User data:', response.user);
-      
       setUser(response.user);
-      console.log('💾 Saving user to localStorage');
       // Ensure user is cached in localStorage
       localStorage.setItem('user', JSON.stringify(response.user));
-      console.log('✅ Login process complete, returning success');
       return { success: true };
     } catch (error) {
-      console.error('❌ Login error in AuthContext:', error);
       return { 
         success: false, 
         error: error instanceof Error ? error.message : 'Login failed' 

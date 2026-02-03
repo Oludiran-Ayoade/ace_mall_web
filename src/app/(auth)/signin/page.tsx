@@ -42,32 +42,21 @@ export default function SignInPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('🔐 Sign-in attempt started');
-    
-    if (!validateForm()) {
-      console.log('❌ Form validation failed');
-      return;
-    }
+    if (!validateForm()) return;
     
     setIsLoading(true);
-    console.log('⏳ Calling login function...');
     
     try {
       const result = await login(email, password);
-      console.log('📊 Login result:', result);
       
       if (result.success) {
-        console.log('✅ Login successful!');
         toast({ title: 'Signed in successfully!', variant: 'success' });
         
-        console.log('🚀 Starting redirect in 500ms...');
         // Use window.location for immediate redirect
         setTimeout(() => {
-          console.log('➡️ Redirecting to /dashboard');
           window.location.href = '/dashboard';
         }, 500);
       } else {
-        console.log('❌ Login failed:', result.error);
         toast({ 
           title: 'Login failed', 
           description: result.error || 'Invalid credentials',
@@ -75,14 +64,12 @@ export default function SignInPage() {
         });
       }
     } catch (error) {
-      console.error('🔥 Exception during login:', error);
       toast({ 
         title: 'Network error', 
         description: 'Please check your connection',
         variant: 'destructive' 
       });
     } finally {
-      console.log('🏁 Setting loading to false');
       setIsLoading(false);
     }
   };
