@@ -47,13 +47,14 @@ export default function EditStaffPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [staffData, branchData, deptData, roleData] = await Promise.all([
+        const [staffResponse, branchData, deptData, roleData] = await Promise.all([
           api.getStaffById(staffId),
           api.getBranches().catch(() => []),
           api.getDepartments().catch(() => []),
           api.getRoles().catch(() => []),
         ]);
 
+        const staffData = staffResponse.user;
         setStaff(staffData);
         setBranches(Array.isArray(branchData) ? branchData : []);
         setDepartments(Array.isArray(deptData) ? deptData : []);

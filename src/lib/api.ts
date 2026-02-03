@@ -198,9 +198,9 @@ class ApiClient {
     return response.staff || [];
   }
 
-  async getStaffById(id: string): Promise<User> {
+  async getStaffById(id: string): Promise<{ user: User; permission_level: string }> {
     const response = await this.request<{ user: User; permission_level: string }>(`/staff/${id}`);
-    return response.user;
+    return response;
   }
 
   async getStaffStats(): Promise<{ total_staff: number; active_staff: number; terminated_staff: number }> {

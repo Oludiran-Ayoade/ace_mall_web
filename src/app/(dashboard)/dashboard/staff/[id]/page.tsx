@@ -33,6 +33,7 @@ export default function StaffDetailPage() {
   const staffId = params.id as string;
 
   const [staff, setStaff] = useState<User | null>(null);
+  const [permissionLevel, setPermissionLevel] = useState<string>('view_basic');
   const [promotions, setPromotions] = useState<PromotionHistory[]>([]);
   const [reviews, setReviews] = useState<WeeklyReview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,12 +41,13 @@ export default function StaffDetailPage() {
   useEffect(() => {
     const fetchStaffData = async () => {
       try {
-        const [staffData, promotionData, reviewData] = await Promise.all([
+        const [staffResponse, promotionData, reviewData] = await Promise.all([
           api.getStaffById(staffId),
           api.getPromotionHistory(staffId).catch(() => []),
           api.getStaffReviews(staffId).catch(() => ({ reviews: [] })),
         ]);
-        setStaff(staffData || null);
+        setStaff(staffResponse.user || null);
+        setPermissionLevel(staffResponse.permission_level || 'view_basic');
         setPromotions(Array.isArray(promotionData) ? promotionData : []);
         const reviewsArray = reviewData?.reviews || [];
         setReviews(Array.isArray(reviewsArray) ? reviewsArray : []);
@@ -259,12 +261,14 @@ export default function StaffDetailPage() {
                 {staff.date_joined ? formatDate(staff.date_joined) : 'Not provided'}
               </p>
             </div>
-            <div>
-              <p className="text-sm text-gray-500">Salary</p>
-              <p className="font-medium text-primary">
-                {staff.current_salary ? formatCurrency(staff.current_salary) : 'Not disclosed'}
-              </p>
-            </div>
+            {permissionLevel === 'view_full' && (
+              <div>
+                <p className="text-sm text-gray-500">Salary</p>
+                <p className="font-medium text-primary">
+                  {staff.current_salary ? formatCurrency(staff.current_salary) : 'Not disclosed'}
+                </p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -433,7 +437,8 @@ export default function StaffDetailPage() {
         </Card>
       )}
 
-      {/* Staff Documents */}
+      {/* Staff Documents - Only HR/CEO/COO */}
+      {permissionLevel === 'view_full' && (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -483,8 +488,10 @@ export default function StaffDetailPage() {
           </div>
         </CardContent>
       </Card>
+      )}
 
-      {/* Next of Kin */}
+      {/* Next of Kin - Only HR/CEO/COO */}
+      {permissionLevel === 'view_full' && (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -521,8 +528,10 @@ export default function StaffDetailPage() {
           </div>
         </CardContent>
       </Card>
+      )}
 
-      {/* Guarantor 1 */}
+      {/* Guarantor 1 - Only HR/CEO/COO */}
+      {permissionLevel === 'view_full' && (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -587,8 +596,10 @@ export default function StaffDetailPage() {
           </div>
         </CardContent>
       </Card>
+      )}
 
-      {/* Guarantor 2 */}
+      {/* Guarantor 2 - Only HR/CEO/COO */}
+      {permissionLevel === 'view_full' && (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -653,6 +664,7 @@ export default function StaffDetailPage() {
           </div>
         </CardContent>
       </Card>
+      )}
 
       {/* Education */}
       <Card>
