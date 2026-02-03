@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import api from '@/lib/api';
-import { User, Branch, Department, Role, WorkExperience } from '@/types';
+import { User, Branch, Department, Role, WorkExperience, PromotionHistory } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +25,7 @@ export default function EditStaffPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [workExperiences, setWorkExperiences] = useState<WorkExperience[]>([]);
+  const [promotions, setPromotions] = useState<PromotionHistory[]>([]);
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -43,16 +44,38 @@ export default function EditStaffPage() {
     course_of_study: '',
     grade: '',
     institution: '',
+    // Next of Kin
+    next_of_kin_name: '',
+    next_of_kin_relationship: '',
+    next_of_kin_phone: '',
+    next_of_kin_email: '',
+    next_of_kin_home_address: '',
+    next_of_kin_work_address: '',
+    // Guarantor 1
+    guarantor1_name: '',
+    guarantor1_phone: '',
+    guarantor1_occupation: '',
+    guarantor1_relationship: '',
+    guarantor1_address: '',
+    guarantor1_email: '',
+    // Guarantor 2
+    guarantor2_name: '',
+    guarantor2_phone: '',
+    guarantor2_occupation: '',
+    guarantor2_relationship: '',
+    guarantor2_address: '',
+    guarantor2_email: '',
   });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [staffResponse, branchData, deptData, roleData] = await Promise.all([
+        const [staffResponse, branchData, deptData, roleData, promotionData] = await Promise.all([
           api.getStaffById(staffId),
           api.getBranches().catch(() => []),
           api.getDepartments().catch(() => []),
           api.getRoles().catch(() => []),
+          api.getPromotionHistory(staffId).catch(() => []),
         ]);
 
         const staffData = staffResponse.user;
@@ -80,6 +103,27 @@ export default function EditStaffPage() {
             course_of_study: staffData.course_of_study || '',
             grade: staffData.grade || '',
             institution: staffData.institution || '',
+            // Next of Kin
+            next_of_kin_name: staffData.next_of_kin_name || '',
+            next_of_kin_relationship: staffData.next_of_kin_relationship || '',
+            next_of_kin_phone: staffData.next_of_kin_phone || '',
+            next_of_kin_email: staffData.next_of_kin_email || '',
+            next_of_kin_home_address: staffData.next_of_kin_home_address || '',
+            next_of_kin_work_address: staffData.next_of_kin_work_address || '',
+            // Guarantor 1
+            guarantor1_name: staffData.guarantor1_name || '',
+            guarantor1_phone: staffData.guarantor1_phone || '',
+            guarantor1_occupation: staffData.guarantor1_occupation || '',
+            guarantor1_relationship: staffData.guarantor1_relationship || '',
+            guarantor1_address: staffData.guarantor1_address || '',
+            guarantor1_email: staffData.guarantor1_email || '',
+            // Guarantor 2
+            guarantor2_name: staffData.guarantor2_name || '',
+            guarantor2_phone: staffData.guarantor2_phone || '',
+            guarantor2_occupation: staffData.guarantor2_occupation || '',
+            guarantor2_relationship: staffData.guarantor2_relationship || '',
+            guarantor2_address: staffData.guarantor2_address || '',
+            guarantor2_email: staffData.guarantor2_email || '',
           });
           
           // Load work experiences
@@ -92,6 +136,11 @@ export default function EditStaffPage() {
               start_date: exp.start_date || '',
               end_date: exp.end_date || '',
             })));
+          }
+          
+          // Load promotion history
+          if (promotionData && Array.isArray(promotionData)) {
+            setPromotions(promotionData);
           }
         }
       } catch (error) {
@@ -131,6 +180,22 @@ export default function EditStaffPage() {
     setWorkExperiences(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleDeletePromotion = async (promotionId: number) => {
+    if (!confirm('Are you sure you want to delete this promotion record?')) return;
+    
+    try {
+      await api.deletePromotion(promotionId);
+      setPromotions(prev => prev.filter(p => p.id !== promotionId));
+      toast({ title: 'Promotion record deleted', variant: 'success' });
+    } catch (error) {
+      toast({ 
+        title: 'Failed to delete promotion', 
+        description: error instanceof Error ? error.message : 'Please try again',
+        variant: 'destructive' 
+      });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -153,6 +218,27 @@ export default function EditStaffPage() {
         course_of_study: formData.course_of_study || undefined,
         grade: formData.grade || undefined,
         institution: formData.institution || undefined,
+        // Next of Kin
+        next_of_kin_name: formData.next_of_kin_name || undefined,
+        next_of_kin_relationship: formData.next_of_kin_relationship || undefined,
+        next_of_kin_phone: formData.next_of_kin_phone || undefined,
+        next_of_kin_email: formData.next_of_kin_email || undefined,
+        next_of_kin_home_address: formData.next_of_kin_home_address || undefined,
+        next_of_kin_work_address: formData.next_of_kin_work_address || undefined,
+        // Guarantor 1
+        guarantor1_name: formData.guarantor1_name || undefined,
+        guarantor1_phone: formData.guarantor1_phone || undefined,
+        guarantor1_occupation: formData.guarantor1_occupation || undefined,
+        guarantor1_relationship: formData.guarantor1_relationship || undefined,
+        guarantor1_address: formData.guarantor1_address || undefined,
+        guarantor1_email: formData.guarantor1_email || undefined,
+        // Guarantor 2
+        guarantor2_name: formData.guarantor2_name || undefined,
+        guarantor2_phone: formData.guarantor2_phone || undefined,
+        guarantor2_occupation: formData.guarantor2_occupation || undefined,
+        guarantor2_relationship: formData.guarantor2_relationship || undefined,
+        guarantor2_address: formData.guarantor2_address || undefined,
+        guarantor2_email: formData.guarantor2_email || undefined,
       };
 
       // Update basic profile
@@ -437,6 +523,76 @@ export default function EditStaffPage() {
           </CardContent>
         </Card>
 
+        {/* Next of Kin */}
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <h3 className="font-semibold text-lg mb-4">Next of Kin</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-gray-500">Full Name</label>
+                <Input
+                  name="next_of_kin_name"
+                  value={formData.next_of_kin_name}
+                  onChange={handleChange}
+                  placeholder="Enter next of kin name"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Relationship</label>
+                <Input
+                  name="next_of_kin_relationship"
+                  value={formData.next_of_kin_relationship}
+                  onChange={handleChange}
+                  placeholder="e.g., Spouse, Parent, Sibling"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Phone Number</label>
+                <Input
+                  name="next_of_kin_phone"
+                  value={formData.next_of_kin_phone}
+                  onChange={handleChange}
+                  placeholder="Enter phone number"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Email</label>
+                <Input
+                  name="next_of_kin_email"
+                  type="email"
+                  value={formData.next_of_kin_email}
+                  onChange={handleChange}
+                  placeholder="Enter email"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Home Address</label>
+                <Input
+                  name="next_of_kin_home_address"
+                  value={formData.next_of_kin_home_address}
+                  onChange={handleChange}
+                  placeholder="Enter home address"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Work Address</label>
+                <Input
+                  name="next_of_kin_work_address"
+                  value={formData.next_of_kin_work_address}
+                  onChange={handleChange}
+                  placeholder="Enter work address"
+                  className="mt-1"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Work Experience */}
         <Card className="mb-6">
           <CardContent className="pt-6">
@@ -518,6 +674,195 @@ export default function EditStaffPage() {
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Promotion History */}
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <h3 className="font-semibold text-lg mb-4">Promotion History</h3>
+            {promotions.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No promotion history. Use the Promote Staff feature to create promotions.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {promotions.map((promo) => (
+                  <div key={promo.id} className="p-4 border border-gray-200 rounded-lg bg-gray-50 flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm font-medium text-gray-900">
+                          {new Date(promo.date).toLocaleDateString()}
+                        </span>
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                          {promo.previous_role} → {promo.new_role}
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Salary: ₦{promo.previous_salary?.toLocaleString()} → ₦{promo.new_salary?.toLocaleString()}
+                      </div>
+                      {(promo.previous_branch || promo.new_branch) && (
+                        <div className="text-sm text-gray-600 mt-1">
+                          Branch: {promo.previous_branch || 'N/A'} → {promo.new_branch || 'N/A'}
+                        </div>
+                      )}
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeletePromotion(promo.id)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <p className="text-xs text-gray-500 mt-4">
+              Note: To add new promotions, use the "Promote Staff" feature from the staff profile page.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Guarantor 1 */}
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <h3 className="font-semibold text-lg mb-4">Guarantor 1</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-gray-500">Full Name</label>
+                <Input
+                  name="guarantor1_name"
+                  value={formData.guarantor1_name}
+                  onChange={handleChange}
+                  placeholder="Enter guarantor name"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Phone Number</label>
+                <Input
+                  name="guarantor1_phone"
+                  value={formData.guarantor1_phone}
+                  onChange={handleChange}
+                  placeholder="Enter phone number"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Occupation</label>
+                <Input
+                  name="guarantor1_occupation"
+                  value={formData.guarantor1_occupation}
+                  onChange={handleChange}
+                  placeholder="Enter occupation"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Relationship</label>
+                <Input
+                  name="guarantor1_relationship"
+                  value={formData.guarantor1_relationship}
+                  onChange={handleChange}
+                  placeholder="Enter relationship"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Address</label>
+                <Input
+                  name="guarantor1_address"
+                  value={formData.guarantor1_address}
+                  onChange={handleChange}
+                  placeholder="Enter address"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Email</label>
+                <Input
+                  name="guarantor1_email"
+                  type="email"
+                  value={formData.guarantor1_email}
+                  onChange={handleChange}
+                  placeholder="Enter email"
+                  className="mt-1"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Guarantor 2 */}
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <h3 className="font-semibold text-lg mb-4">Guarantor 2</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-gray-500">Full Name</label>
+                <Input
+                  name="guarantor2_name"
+                  value={formData.guarantor2_name}
+                  onChange={handleChange}
+                  placeholder="Enter guarantor name"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Phone Number</label>
+                <Input
+                  name="guarantor2_phone"
+                  value={formData.guarantor2_phone}
+                  onChange={handleChange}
+                  placeholder="Enter phone number"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Occupation</label>
+                <Input
+                  name="guarantor2_occupation"
+                  value={formData.guarantor2_occupation}
+                  onChange={handleChange}
+                  placeholder="Enter occupation"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Relationship</label>
+                <Input
+                  name="guarantor2_relationship"
+                  value={formData.guarantor2_relationship}
+                  onChange={handleChange}
+                  placeholder="Enter relationship"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Address</label>
+                <Input
+                  name="guarantor2_address"
+                  value={formData.guarantor2_address}
+                  onChange={handleChange}
+                  placeholder="Enter address"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Email</label>
+                <Input
+                  name="guarantor2_email"
+                  type="email"
+                  value={formData.guarantor2_email}
+                  onChange={handleChange}
+                  placeholder="Enter email"
+                  className="mt-1"
+                />
+              </div>
+            </div>
           </CardContent>
         </Card>
 

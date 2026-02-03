@@ -356,6 +356,12 @@ class ApiClient {
     return response.history || [];
   }
 
+  async deletePromotion(promotionId: number): Promise<{ message: string }> {
+    return this.request(`/promotions/${promotionId}`, {
+      method: 'DELETE',
+    });
+  }
+
   // ============================================
   // TERMINATIONS
   // ============================================
