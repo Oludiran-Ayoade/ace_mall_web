@@ -25,6 +25,7 @@ import {
   TrendingUp,
   Edit,
   UserMinus,
+  Plus,
 } from 'lucide-react';
 
 export default function StaffDetailPage() {
@@ -47,6 +48,7 @@ export default function StaffDetailPage() {
           api.getStaffReviews(staffId).catch(() => ({ reviews: [] })),
         ]);
         setStaff(staffResponse.user || null);
+        console.log('Permission level from API:', staffResponse.permission_level);
         setPermissionLevel(staffResponse.permission_level || 'view_basic');
         setPromotions(Array.isArray(promotionData) ? promotionData : []);
         const reviewsArray = reviewData?.reviews || [];
@@ -279,10 +281,23 @@ export default function StaffDetailPage() {
       {/* Work Experience */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Briefcase className="w-5 h-5 text-primary" />
-            Work Experience
-          </CardTitle>
+          <div className="flex items-center justify-between w-full">
+            <CardTitle className="flex items-center gap-2">
+              <Briefcase className="w-5 h-5 text-primary" />
+              Work Experience
+            </CardTitle>
+            <Button 
+              size="lg" 
+              className="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 shadow-lg"
+              onClick={() => {
+                console.log('EDIT BUTTON CLICKED! Navigating to edit work experience');
+                router.push(`/dashboard/staff/${staffId}/edit-work-experience`);
+              }}
+            >
+              <Edit className="w-5 h-5 mr-2" />
+              EDIT
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {staff.work_experience && staff.work_experience.length > 0 ? (
@@ -309,7 +324,18 @@ export default function StaffDetailPage() {
           ) : (
             <div className="text-center py-8">
               <Briefcase className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500">No work experience recorded</p>
+              <p className="text-gray-500 mb-4">No work experience recorded</p>
+              <Button 
+                size="lg"
+                className="bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-4 shadow-lg"
+                onClick={() => {
+                  console.log('ADD BUTTON CLICKED! Navigating to edit work experience');
+                  router.push(`/dashboard/staff/${staffId}/edit-work-experience`);
+                }}
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                ADD WORK EXPERIENCE
+              </Button>
             </div>
           )}
         </CardContent>
