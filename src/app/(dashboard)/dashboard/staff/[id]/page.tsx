@@ -54,6 +54,9 @@ export default function StaffDetailPage() {
         ]);
         setStaff(staffResponse.user || null);
         console.log('Permission level from API:', staffResponse.permission_level);
+        console.log('Guarantor 2 Passport:', staffResponse.user?.guarantor2_passport);
+        console.log('Guarantor 2 National ID:', staffResponse.user?.guarantor2_national_id);
+        console.log('Guarantor 2 Work ID:', staffResponse.user?.guarantor2_work_id);
         setPermissionLevel(staffResponse.permission_level || 'view_basic');
         setPromotions(Array.isArray(promotionData) ? promotionData : []);
         const reviewsArray = reviewData?.reviews || [];
