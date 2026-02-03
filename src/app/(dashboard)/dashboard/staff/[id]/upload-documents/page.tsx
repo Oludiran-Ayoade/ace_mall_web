@@ -118,7 +118,8 @@ export default function UploadDocumentsPage() {
       } else {
         // Upload guarantor document
         const guarantorNumber = docField.category === 'guarantor1' ? 1 : 2;
-        const documentType = docField.key.split('_')[1]; // Extract 'passport', 'national_id', or 'work_id'
+        // Extract document type: g1_passport -> passport, g2_national_id -> national_id, g2_work_id -> work_id
+        const documentType = docField.key.substring(3); // Remove 'g1_' or 'g2_' prefix
         
         await api.uploadGuarantorDocument(staffId, guarantorNumber, documentType, documentUrl);
       }
