@@ -437,6 +437,22 @@ class ApiClient {
     });
   }
 
+  async uploadGuarantorDocument(
+    staffId: string, 
+    guarantorNumber: number, 
+    documentType: string, 
+    documentUrl: string
+  ): Promise<{ message: string }> {
+    return this.request(`/staff/${staffId}/guarantor-document`, {
+      method: 'POST',
+      body: JSON.stringify({
+        guarantor_number: guarantorNumber,
+        document_type: documentType,
+        document_url: documentUrl,
+      }),
+    });
+  }
+
   // ============================================
   // PROFILE
   // ============================================

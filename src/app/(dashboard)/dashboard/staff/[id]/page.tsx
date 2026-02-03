@@ -241,6 +241,12 @@ export default function StaffDetailPage() {
                     Edit
                   </Button>
                 </Link>
+                <Link href={`/dashboard/staff/${staffId}/upload-documents`}>
+                  <Button variant="outline">
+                    <FileText className="w-4 h-4 mr-2" />
+                    Upload Documents
+                  </Button>
+                </Link>
               </div>
             )}
           </div>
