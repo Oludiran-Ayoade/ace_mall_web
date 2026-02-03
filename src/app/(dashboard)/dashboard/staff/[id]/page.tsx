@@ -202,10 +202,24 @@ export default function StaffDetailPage() {
                 </p>
               </div>
             </div>
+            <div className="flex items-center gap-3">
+              <Users className="w-5 h-5 text-gray-400" />
+              <div>
+                <p className="text-sm text-gray-500">Marital Status</p>
+                <p className="font-medium">{staff.marital_status || 'Not provided'}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <MapPin className="w-5 h-5 text-gray-400" />
+              <div>
+                <p className="text-sm text-gray-500">State of Origin</p>
+                <p className="font-medium">{staff.state_of_origin || 'Not provided'}</p>
+              </div>
+            </div>
             <div className="flex items-center gap-3 md:col-span-2">
               <MapPin className="w-5 h-5 text-gray-400" />
               <div>
-                <p className="text-sm text-gray-500">Address</p>
+                <p className="text-sm text-gray-500">Home Address</p>
                 <p className="font-medium">{staff.home_address || 'Not provided'}</p>
               </div>
             </div>
@@ -288,48 +302,73 @@ export default function StaffDetailPage() {
         </Card>
       )}
 
-      {/* Promotion History */}
+      {/* Promotion & Transfer History */}
       {promotions.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-primary" />
-              Promotion History
+              Promotion & Transfer History
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {promotions.map((promo) => (
-                <div
-                  key={promo.id}
-                  className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl"
-                >
-                  <div className="p-2 bg-green-100 rounded-full">
-                    <TrendingUp className="w-4 h-4 text-green-600" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <p className="font-medium text-gray-900">{promo.type}</p>
-                      <span className="text-sm text-gray-500">
-                        {formatDate(promo.date)}
-                      </span>
+              {promotions.map((promo) => {
+                const isTransfer = promo.type === 'Transfer' || promo.type === 'Transfer & Promotion';
+                const isPromotion = promo.type === 'Promotion' || promo.type === 'Transfer & Promotion';
+                const isSalaryIncrease = promo.type === 'Salary Increase';
+                
+                return (
+                  <div
+                    key={promo.id}
+                    className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl"
+                  >
+                    <div className={`p-2 rounded-full ${
+                      isTransfer ? 'bg-blue-100' : 
+                      isSalaryIncrease ? 'bg-yellow-100' : 'bg-green-100'
+                    }`}>
+                      {isTransfer ? (
+                        <Building2 className={`w-4 h-4 ${isTransfer ? 'text-blue-600' : 'text-green-600'}`} />
+                      ) : (
+                        <TrendingUp className={`w-4 h-4 ${isSalaryIncrease ? 'text-yellow-600' : 'text-green-600'}`} />
+                      )}
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {promo.previous_role} → {promo.new_role}
-                    </p>
-                    {promo.previous_salary !== promo.new_salary && (
-                      <p className="text-sm text-green-600 mt-1">
-                        Salary: {formatCurrency(promo.previous_salary)} → {formatCurrency(promo.new_salary)}
-                      </p>
-                    )}
-                    {promo.reason && (
-                      <p className="text-sm text-gray-500 mt-2 italic">
-                        &quot;{promo.reason}&quot;
-                      </p>
-                    )}
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          isTransfer ? 'bg-blue-100 text-blue-800' :
+                          isSalaryIncrease ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
+                        }`}>
+                          {promo.type}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          {formatDate(promo.date)}
+                        </span>
+                      </div>
+                      {isPromotion && promo.previous_role !== promo.new_role && (
+                        <p className="text-sm text-gray-600 mt-2">
+                          <span className="font-medium">Role:</span> {promo.previous_role} → {promo.new_role}
+                        </p>
+                      )}
+                      {isTransfer && promo.previous_branch && promo.new_branch && (
+                        <p className="text-sm text-blue-600 mt-1">
+                          <span className="font-medium">Branch:</span> {promo.previous_branch} → {promo.new_branch}
+                        </p>
+                      )}
+                      {promo.previous_salary !== promo.new_salary && (
+                        <p className="text-sm text-green-600 mt-1">
+                          <span className="font-medium">Salary:</span> {formatCurrency(promo.previous_salary)} → {formatCurrency(promo.new_salary)}
+                        </p>
+                      )}
+                      {promo.reason && (
+                        <p className="text-sm text-gray-500 mt-2 italic">
+                          &quot;{promo.reason}&quot;
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
