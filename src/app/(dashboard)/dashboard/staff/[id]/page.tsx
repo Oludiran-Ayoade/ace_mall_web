@@ -362,24 +362,21 @@ export default function StaffDetailPage() {
             <div>
               <p className="text-sm text-gray-500 mb-2">Date Joined</p>
               {permissionLevel === 'view_full' ? (
-                <div className="relative">
-                  <Input
-                    type="date"
-                    value={staff.date_joined ? staff.date_joined.split('T')[0] : ''}
-                    onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
-                      const newDate = e.target.value;
-                      try {
-                        await api.updateStaffProfile(staffId, { date_joined: newDate });
-                        setStaff({ ...staff, date_joined: newDate });
-                        toast.success('Date joined updated successfully!');
-                      } catch (error) {
-                        toast.error('Failed to update date joined');
-                      }
-                    }}
-                    className="w-full sm:max-w-[240px] h-12 px-4 text-base font-medium border-2 border-green-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all bg-green-50/50 hover:bg-green-50"
-                  />
-                  <Edit className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-600 pointer-events-none" />
-                </div>
+                <Input
+                  type="date"
+                  value={staff.date_joined ? staff.date_joined.split('T')[0] : ''}
+                  onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
+                    const newDate = e.target.value;
+                    try {
+                      await api.updateStaffProfile(staffId, { date_joined: newDate });
+                      setStaff({ ...staff, date_joined: newDate });
+                      toast.success('Date joined updated successfully!');
+                    } catch (error) {
+                      toast.error('Failed to update date joined');
+                    }
+                  }}
+                  className="w-full sm:max-w-[280px] h-12 px-4 text-base font-medium border-2 border-green-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all bg-green-50/50 hover:bg-green-50"
+                />
               ) : (
                 <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-50 rounded-lg border border-gray-200">
                   <Calendar className="w-4 h-4 text-gray-500" />
