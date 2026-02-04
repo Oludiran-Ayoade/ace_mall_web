@@ -399,41 +399,61 @@ export default function StaffDetailPage() {
       </Card>
 
       {/* Exam Scores */}
-      {staff.exam_scores && staff.exam_scores.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <GraduationCap className="w-5 h-5 text-primary" />
-              Exam Scores
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <GraduationCap className="w-5 h-5 text-primary" />
+            Exam Scores
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {permissionLevel === 'view_full' ? (
             <div className="space-y-3">
-              {staff.exam_scores.map((exam, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-100"
-                >
-                  <div className="flex items-center gap-3">
+              <p className="text-sm text-gray-500 mb-2">e.g., WAEC, NECO scores (format: 10/16, 12/16)</p>
+              <Input
+                type="text"
+                placeholder="e.g., WAEC: 10/16, NECO: 12/16, JAMB: 250"
+                defaultValue={staff.exam_scores && staff.exam_scores.length > 0 ? staff.exam_scores[0].score : ''}
+                onBlur={async (e: React.ChangeEvent<HTMLInputElement>) => {
+                  const newScore = e.target.value;
+                  if (newScore.trim()) {
+                    try {
+                      await api.updateStaffProfile(staffId, { exam_scores: newScore } as any);
+                      toast.success('Exam scores updated successfully!');
+                      // Refresh staff data
+                      const response = await api.getStaffById(staffId);
+                      if (response && response.user) {
+                        setStaff(response.user);
+                      }
+                    } catch (error) {
+                      toast.error('Failed to update exam scores');
+                    }
+                  }
+                }}
+                className="w-full h-12 px-4 text-base font-medium border border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all bg-purple-50/50 hover:bg-purple-50"
+              />
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {staff.exam_scores && staff.exam_scores.length > 0 ? (
+                staff.exam_scores.map((exam, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-3 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-100"
+                  >
                     <div className="p-2 bg-purple-100 rounded-full">
                       <GraduationCap className="w-4 h-4 text-purple-600" />
                     </div>
-                    <div>
-                      <p className="font-semibold text-gray-900">{exam.exam_type}</p>
-                      <p className="text-sm text-gray-600">{exam.score}</p>
-                    </div>
+                    <p className="text-base text-gray-900 font-medium">{exam.score}</p>
                   </div>
-                  {exam.year_taken && (
-                    <span className="text-sm text-gray-500 font-medium">
-                      {exam.year_taken}
-                    </span>
-                  )}
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-gray-500 text-sm">No exam scores recorded</p>
+              )}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </CardContent>
+      </Card>
 
       {/* Work Experience */}
       <Card>
