@@ -1,36 +1,51 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDate, formatCurrency, getInitials } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
-import { toast } from '@/components/ui/toaster';
 import api from '@/lib/api';
+import { User as UserType, WorkExperience, PromotionHistory } from '@/types';
 import {
   User,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
   Briefcase,
-  Building2,
   GraduationCap,
-  FileText,
-  Users,
-  Edit,
-  Save,
-  X,
-  Camera,
+  TrendingUp,
 } from 'lucide-react';
 
 export default function ProfilePage() {
-  const { user, refreshUser, isLoading: authLoading } = useAuth();
-  // Profile is read-only - staff cannot edit their own profile
+  const { user: authUser, isLoading: authLoading } = useAuth();
+  const [staffData, setStaffData] = useState<UserType | null>(null);
+  const [workExperience, setWorkExperience] = useState<WorkExperience[]>([]);
+  const [promotions, setPromotions] = useState<PromotionHistory[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (authLoading || !user) {
+  useEffect(() => {
+    if (authUser?.id) {
+      fetchFullProfile();
+    }
+  }, [authUser?.id]);
+
+  const fetchFullProfile = async () => {
+    try {
+      setIsLoading(true);
+      // Fetch FULL staff profile with all details
+      const [profileRes, promotionsRes] = await Promise.all([
+        api.getStaffById(authUser!.id),
+        api.getPromotionHistory(authUser!.id),
+      ]);
+      setStaffData(profileRes.user);
+      setWorkExperience(profileRes.user.work_experience || []);
+      setPromotions(promotionsRes || []);
+    } catch (error) {
+      console.error('Failed to load profile:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (authLoading || isLoading || !staffData) {
     return (
       <div className="flex items-center justify-center h-64">
         <LoadingSpinner size="lg" />
@@ -38,7 +53,7 @@ export default function ProfilePage() {
     );
   }
 
-  // No editing allowed - profile is read-only
+  const user = staffData; // Use full profile data
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -104,17 +119,21 @@ export default function ProfilePage() {
             </div>
             <div>
               <label className="text-sm text-gray-500">Gender</label>
-              <p className="font-medium">{user.gender || 'Not provided'}</p>
+              <p className="font-medium">{user.gender || 'N/A'}</p>
             </div>
             <div>
               <label className="text-sm text-gray-500">Date of Birth</label>
               <p className="font-medium">
-                {user.date_of_birth ? formatDate(user.date_of_birth) : 'Not provided'}
+                {user.date_of_birth ? formatDate(user.date_of_birth) : 'N/A'}
               </p>
             </div>
             <div>
+              <label className="text-sm text-gray-500">Marital Status</label>
+              <p className="font-medium">{user.marital_status || 'N/A'}</p>
+            </div>
+            <div>
               <label className="text-sm text-gray-500">State of Origin</label>
-              <p className="font-medium">{user.state_of_origin || 'Not provided'}</p>
+              <p className="font-medium">{user.state_of_origin || 'N/A'}</p>
             </div>
             <div className="md:col-span-2">
               <label className="text-sm text-gray-500">Address</label>
@@ -153,13 +172,13 @@ export default function ProfilePage() {
             <div>
               <label className="text-sm text-gray-500">Date Joined</label>
               <p className="font-medium">
-                {user.date_joined ? formatDate(user.date_joined) : 'Not provided'}
+                {user.date_joined ? formatDate(user.date_joined) : 'N/A'}
               </p>
             </div>
             <div>
               <label className="text-sm text-gray-500">Salary</label>
-              <p className="font-medium text-primary">
-                {user.current_salary ? formatCurrency(user.current_salary) : 'Not disclosed'}
+              <p className="font-medium text-green-600">
+                {user.current_salary ? formatCurrency(user.current_salary) : 'N/A'}
               </p>
             </div>
           </div>
@@ -178,52 +197,100 @@ export default function ProfilePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="text-sm text-gray-500">Course of Study</label>
-              <p className="font-medium">{user.course_of_study || 'Not provided'}</p>
+              <p className="font-medium">{user.course_of_study || 'N/A'}</p>
             </div>
             <div>
-              <label className="text-sm text-gray-500">Grade</label>
-              <p className="font-medium">{user.grade || 'Not provided'}</p>
+              <label className="text-sm text-gray-500">Grade/Class</label>
+              <p className="font-medium">{user.grade || 'N/A'}</p>
             </div>
             <div>
               <label className="text-sm text-gray-500">Institution</label>
-              <p className="font-medium">{user.institution || 'Not provided'}</p>
+              <p className="font-medium">{user.institution || 'N/A'}</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Documents */}
+      {/* Work Experience */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-primary" />
-            Documents
+        <CardHeader className="bg-gradient-to-r from-green-50 to-white">
+          <CardTitle className="flex items-center gap-2 text-green-700">
+            <Briefcase className="w-5 h-5" />
+            Work Experience
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: 'Passport', url: user.passport_url },
-              { label: 'National ID', url: user.national_id_url },
-              { label: 'WAEC Certificate', url: user.waec_certificate_url },
-              { label: 'Degree Certificate', url: user.degree_certificate_url },
-              { label: 'NYSC Certificate', url: user.nysc_certificate_url },
-              { label: 'Birth Certificate', url: user.birth_certificate_url },
-            ].map((doc) => (
-              <div
-                key={doc.label}
-                className={`p-4 rounded-xl border-2 border-dashed text-center ${
-                  doc.url ? 'border-green-300 bg-green-50' : 'border-gray-200 bg-gray-50'
-                }`}
-              >
-                <FileText className={`w-8 h-8 mx-auto mb-2 ${doc.url ? 'text-green-500' : 'text-gray-300'}`} />
-                <p className="text-sm font-medium text-gray-700">{doc.label}</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {doc.url ? 'Uploaded' : 'Not uploaded'}
-                </p>
-              </div>
-            ))}
-          </div>
+        <CardContent className="pt-6">
+          {workExperience.length > 0 ? (
+            <div className="space-y-4">
+              {workExperience.map((exp, index) => (
+                <div
+                  key={index}
+                  className="p-4 bg-gray-50 rounded-lg border border-gray-200"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h4 className="font-bold text-gray-900">{exp.position}</h4>
+                      <p className="text-green-600 font-medium">{exp.company_name}</p>
+                    </div>
+                    <span className="text-sm text-gray-500 bg-white px-3 py-1 rounded-full border">
+                      {exp.start_date && formatDate(exp.start_date)} - {exp.end_date ? formatDate(exp.end_date) : 'Present'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-8">No work experience added</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Promotion History */}
+      <Card>
+        <CardHeader className="bg-gradient-to-r from-green-50 to-white">
+          <CardTitle className="flex items-center gap-2 text-green-700">
+            <TrendingUp className="w-5 h-5" />
+            Promotion History
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-6">
+          {promotions.length > 0 ? (
+            <div className="space-y-4">
+              {promotions.map((promo, index) => (
+                <div
+                  key={index}
+                  className="p-4 bg-gradient-to-r from-green-50 to-white rounded-lg border-l-4 border-green-500"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h4 className="font-bold text-gray-900">{promo.new_role}</h4>
+                      <p className="text-sm text-gray-600">{promo.type}</p>
+                      {promo.new_branch && (
+                        <p className="text-xs text-gray-500 mt-1">{promo.new_branch}</p>
+                      )}
+                    </div>
+                    <span className="text-sm text-gray-500 bg-white px-3 py-1 rounded-full border">
+                      {promo.date && formatDate(promo.date)}
+                    </span>
+                  </div>
+                  {promo.reason && (
+                    <p className="text-sm text-gray-700 mt-2">
+                      <strong>Reason:</strong> {promo.reason}
+                    </p>
+                  )}
+                  {promo.previous_salary && promo.new_salary && (
+                    <div className="flex items-center gap-2 mt-2 text-sm">
+                      <span className="text-gray-600">{formatCurrency(promo.previous_salary)}</span>
+                      <span className="text-green-600">→</span>
+                      <span className="text-green-600 font-semibold">{formatCurrency(promo.new_salary)}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-8">No promotion history</p>
+          )}
         </CardContent>
       </Card>
     </div>
