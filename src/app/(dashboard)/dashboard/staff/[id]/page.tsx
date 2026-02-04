@@ -438,7 +438,7 @@ export default function StaffDetailPage() {
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
-                      <p className="font-bold text-gray-900">
+                      <p className="font-semibold text-gray-900">
                         {staff.exam_scores && staff.exam_scores.length > 0 ? staff.exam_scores[0].score : 'Not provided'}
                       </p>
                       <Button
@@ -448,7 +448,7 @@ export default function StaffDetailPage() {
                           setExamScoresValue(staff.exam_scores && staff.exam_scores.length > 0 ? staff.exam_scores[0].score : '');
                           setIsEditingExamScores(true);
                         }}
-                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        className="text-green-600 hover:text-green-700 hover:bg-green-50"
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
