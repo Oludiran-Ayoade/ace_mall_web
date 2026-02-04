@@ -10,6 +10,27 @@ import { Input } from '@/components/ui/input';
 import { LoadingSpinner, BouncingDots } from '@/components/shared/LoadingSpinner';
 import { toast } from '@/components/ui/toaster';
 import { NIGERIAN_STATES, GRADE_OPTIONS } from '@/lib/constants';
+
+// Helper function to calculate age from DOB
+const calculateAge = (dob: string): number => {
+  if (!dob) return 0;
+  const birthDate = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+};
+
+// Helper function to validate age matches DOB
+const validateAgeMatchesDOB = (dob: string, age: string): boolean => {
+  if (!dob || !age) return true; // Skip validation if either is empty
+  const calculatedAge = calculateAge(dob);
+  const providedAge = parseInt(age);
+  return calculatedAge === providedAge;
+};
 import {
   ArrowLeft,
   ArrowRight,
@@ -202,7 +223,20 @@ export default function AddStaffPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Auto-calculate age when DOB changes
+    if (name === 'date_of_birth' && value) {
+      const age = calculateAge(value);
+      setFormData(prev => ({ ...prev, [name]: value }));
+    } else if (name === 'g1_dob' && value) {
+      const age = calculateAge(value);
+      setFormData(prev => ({ ...prev, [name]: value, g1_age: age.toString() }));
+    } else if (name === 'g2_dob' && value) {
+      const age = calculateAge(value);
+      setFormData(prev => ({ ...prev, [name]: value, g2_age: age.toString() }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -227,6 +261,37 @@ export default function AddStaffPage() {
   };
 
   const handleSubmit = async () => {
+    // Validate date_joined is provided
+    if (!formData.date_joined) {
+      toast({ title: 'Date Joined is required', variant: 'destructive' });
+      return;
+    }
+    
+    // Validate DOB and age match for staff
+    if (formData.date_of_birth) {
+      const calculatedAge = calculateAge(formData.date_of_birth);
+      if (calculatedAge < 16) {
+        toast({ title: 'Staff must be at least 16 years old', variant: 'destructive' });
+        return;
+      }
+    }
+    
+    // Validate guarantor 1 DOB and age match
+    if (formData.g1_dob && formData.g1_age) {
+      if (!validateAgeMatchesDOB(formData.g1_dob, formData.g1_age)) {
+        toast({ title: 'Guarantor 1: Age does not match Date of Birth', variant: 'destructive' });
+        return;
+      }
+    }
+    
+    // Validate guarantor 2 DOB and age match
+    if (formData.g2_dob && formData.g2_age) {
+      if (!validateAgeMatchesDOB(formData.g2_dob, formData.g2_age)) {
+        toast({ title: 'Guarantor 2: Age does not match Date of Birth', variant: 'destructive' });
+        return;
+      }
+    }
+    
     if (!formData.full_name || !formData.email || !formData.role_id) {
       toast({ title: 'Please fill required fields', variant: 'destructive' });
       return;
@@ -531,6 +596,27 @@ export default function AddStaffPage() {
                     type="date"
                     value={formData.date_of_birth}
                     onChange={handleChange}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-500">Date Joined *</label>
+                  <Input
+                    name="date_joined"
+                    type="date"
+                    value={formData.date_joined}
+                    onChange={handleChange}
+                    className="mt-1"
+                    placeholder="Date staff joined the company"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-500">Employee ID</label>
+                  <Input
+                    name="employee_id"
+                    value={formData.employee_id}
+                    onChange={handleChange}
+                    placeholder="Enter employee ID"
                     className="mt-1"
                   />
                 </div>

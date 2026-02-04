@@ -9,6 +9,7 @@ import { formatDate, formatCurrency, getInitials } from '@/lib/utils';
 import { decodeStaffId, isValidUUID } from '@/lib/urlEncoder';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { DocumentViewer } from '@/components/shared/DocumentViewer';
 import { toast } from 'react-toastify';
@@ -360,9 +361,29 @@ export default function StaffDetailPage() {
             </div>
             <div>
               <p className="text-sm text-gray-500">Date Joined</p>
-              <p className="font-medium">
-                {staff.date_joined ? formatDate(staff.date_joined) : 'Not provided'}
-              </p>
+              {permissionLevel === 'view_full' ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="date"
+                    value={staff.date_joined ? staff.date_joined.split('T')[0] : ''}
+                    onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
+                      const newDate = e.target.value;
+                      try {
+                        await api.updateStaffProfile(staffId, { date_joined: newDate });
+                        setStaff({ ...staff, date_joined: newDate });
+                        toast.success('Date joined updated successfully!');
+                      } catch (error) {
+                        toast.error('Failed to update date joined');
+                      }
+                    }}
+                    className="max-w-[200px]"
+                  />
+                </div>
+              ) : (
+                <p className="font-medium">
+                  {staff.date_joined ? formatDate(staff.date_joined) : 'Not provided'}
+                </p>
+              )}
             </div>
             {permissionLevel === 'view_full' && (
               <div>
