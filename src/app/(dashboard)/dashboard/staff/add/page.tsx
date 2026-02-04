@@ -385,6 +385,7 @@ export default function AddStaffPage() {
         course_of_study: formData.course_of_study || undefined,
         grade: formData.grade || undefined,
         institution: formData.institution || undefined,
+        exam_scores: formData.exam_scores || undefined,
       };
 
       // Add Next of Kin if provided

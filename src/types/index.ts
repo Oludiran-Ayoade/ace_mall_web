@@ -74,6 +74,9 @@ export interface User {
   // Role History (roles held at Ace Mall)
   role_history?: RoleHistory[];
   
+  // Exam Scores
+  exam_scores?: ExamScore[];
+  
   // Status
   is_active: boolean;
   is_terminated: boolean;
@@ -208,6 +211,12 @@ export interface RoleHistory {
   start_date: string;
   end_date?: string;
   promotion_reason?: string;
+}
+
+export interface ExamScore {
+  exam_type: string;
+  score: string;
+  year_taken?: number;
 }
 
 export interface PromotionHistory {

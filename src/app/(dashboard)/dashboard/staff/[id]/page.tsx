@@ -398,6 +398,43 @@ export default function StaffDetailPage() {
         </CardContent>
       </Card>
 
+      {/* Exam Scores */}
+      {staff.exam_scores && staff.exam_scores.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <GraduationCap className="w-5 h-5 text-primary" />
+              Exam Scores
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {staff.exam_scores.map((exam, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-100"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-100 rounded-full">
+                      <GraduationCap className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">{exam.exam_type}</p>
+                      <p className="text-sm text-gray-600">{exam.score}</p>
+                    </div>
+                  </div>
+                  {exam.year_taken && (
+                    <span className="text-sm text-gray-500 font-medium">
+                      {exam.year_taken}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Work Experience */}
       <Card>
         <CardHeader>
