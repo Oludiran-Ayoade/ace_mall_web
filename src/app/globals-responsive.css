@@ -3,11 +3,11 @@
 /* Desktop/Full screen - ensure welcome card is visible */
 @media (min-width: 769px) {
   main {
-    padding-top: 5.5rem !important; /* 88px - 64px header + extra space */
+    padding-top: 4.5rem !important; /* 72px - 64px header + minimal extra space */
   }
 
   main > div:first-child {
-    margin-top: 3rem; /* Extra spacing for welcome card */
+    margin-top: 1.5rem; /* Reduced spacing for better layout */
   }
 }
 
