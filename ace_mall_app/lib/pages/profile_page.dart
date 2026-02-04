@@ -14,38 +14,26 @@ class _ProfilePageState extends State<ProfilePage> {
   final ApiService _apiService = ApiService();
   Map<String, dynamic>? _userData;
   bool _isLoading = true;
-  bool _isEditing = false;
-
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _emailController;
-  late TextEditingController _phoneController;
+  // Profile is read-only - staff cannot edit their own profile
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController();
-    _emailController = TextEditingController();
-    _phoneController = TextEditingController();
     _loadProfile();
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    super.dispose();
   }
 
   Future<void> _loadProfile() async {
     try {
-      final userData = await _apiService.getCurrentUser();
+      // Get current user ID first
+      final currentUser = await _apiService.getCurrentUser();
+      final userId = currentUser['id'];
+      
+      // Fetch FULL staff profile with all details
+      final profileData = await _apiService.getStaffById(userId);
+      final userData = profileData['user'];
+      
       setState(() {
         _userData = userData;
-        _nameController.text = userData['full_name'] ?? '';
-        _emailController.text = userData['email'] ?? '';
-        _phoneController.text = userData['phone_number'] ?? '';
         _isLoading = false;
       });
     } catch (e) {
@@ -63,41 +51,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  Future<void> _saveProfile() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    try {
-      // TODO: Implement profile update API call
-      setState(() {
-        _isEditing = false;
-        if (_userData != null) {
-          _userData!['full_name'] = _nameController.text;
-          _userData!['email'] = _emailController.text;
-          _userData!['phone_number'] = _phoneController.text;
-        }
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Profile updated successfully', style: GoogleFonts.inter()),
-            backgroundColor: const Color(0xFF4CAF50),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to update profile: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
+  // No editing allowed - profile is read-only
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +84,17 @@ class _ProfilePageState extends State<ProfilePage> {
     final department = _userData?['department_name'] ?? '';
     final branch = _userData?['branch_name'] ?? '';
     final phoneNumber = _userData?['phone_number'] ?? '';
+    final gender = _userData?['gender'] ?? '';
+    final dateOfBirth = _userData?['date_of_birth'] ?? '';
+    final maritalStatus = _userData?['marital_status'] ?? '';
+    final stateOfOrigin = _userData?['state_of_origin'] ?? '';
+    final homeAddress = _userData?['home_address'] ?? '';
+    final employeeId = _userData?['employee_id'] ?? '';
     final dateJoined = _userData?['date_joined'] ?? '';
+    final salary = _userData?['current_salary'];
+    final courseOfStudy = _userData?['course_of_study'] ?? '';
+    final grade = _userData?['grade'] ?? '';
+    final institution = _userData?['institution'] ?? '';
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -148,17 +112,7 @@ class _ProfilePageState extends State<ProfilePage> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        actions: [
-          if (!_isEditing)
-            IconButton(
-              icon: const Icon(Icons.edit, color: Colors.white),
-              onPressed: () {
-                setState(() {
-                  _isEditing = true;
-                });
-              },
-            ),
-        ],
+        // No edit button - profile is read-only
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -228,148 +182,179 @@ class _ProfilePageState extends State<ProfilePage> {
             // Profile Information
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Personal Information Section
-                    Text(
-                      'Personal Information',
-                      style: GoogleFonts.inter(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Personal Information Section
+                  Text(
+                    'Personal Information',
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
-                    const SizedBox(height: 16),
+                  ),
+                  const SizedBox(height: 16),
 
-                    // Full Name
-                    _buildInfoCard(
-                      icon: Icons.person,
-                      label: 'Full Name',
-                      value: userName,
-                      controller: _nameController,
-                      isEditing: _isEditing,
+                  // Full Name
+                  _buildInfoCard(
+                    icon: Icons.person,
+                    label: 'Full Name',
+                    value: userName,
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Email
+                  _buildInfoCard(
+                    icon: Icons.email,
+                    label: 'Email',
+                    value: userEmail,
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Phone
+                  _buildInfoCard(
+                    icon: Icons.phone,
+                    label: 'Phone Number',
+                    value: phoneNumber.isNotEmpty ? phoneNumber : 'N/A',
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Gender
+                  _buildInfoCard(
+                    icon: Icons.wc,
+                    label: 'Gender',
+                    value: gender.isNotEmpty ? gender : 'N/A',
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Date of Birth
+                  _buildInfoCard(
+                    icon: Icons.cake,
+                    label: 'Date of Birth',
+                    value: dateOfBirth.isNotEmpty ? dateOfBirth.split('T')[0] : 'N/A',
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Marital Status
+                  _buildInfoCard(
+                    icon: Icons.favorite,
+                    label: 'Marital Status',
+                    value: maritalStatus.isNotEmpty ? maritalStatus : 'N/A',
+                  ),
+                  const SizedBox(height: 12),
+
+                  // State of Origin
+                  _buildInfoCard(
+                    icon: Icons.location_city,
+                    label: 'State of Origin',
+                    value: stateOfOrigin.isNotEmpty ? stateOfOrigin : 'N/A',
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Home Address
+                  _buildInfoCard(
+                    icon: Icons.home,
+                    label: 'Home Address',
+                    value: homeAddress.isNotEmpty ? homeAddress : 'N/A',
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Work Information Section
+                  Text(
+                    'Work Information',
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
-                    const SizedBox(height: 12),
+                  ),
+                  const SizedBox(height: 16),
 
-                    // Email
-                    _buildInfoCard(
-                      icon: Icons.email,
-                      label: 'Email',
-                      value: userEmail,
-                      controller: _emailController,
-                      isEditing: _isEditing,
-                      keyboardType: TextInputType.emailAddress,
+                  // Employee ID
+                  _buildInfoCard(
+                    icon: Icons.badge,
+                    label: 'Employee ID',
+                    value: employeeId.isNotEmpty ? employeeId : 'N/A',
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Role
+                  _buildInfoCard(
+                    icon: Icons.work,
+                    label: 'Role',
+                    value: userRole,
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Department
+                  _buildInfoCard(
+                    icon: Icons.business,
+                    label: 'Department',
+                    value: department.isNotEmpty ? department : 'N/A',
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Branch
+                  _buildInfoCard(
+                    icon: Icons.location_on,
+                    label: 'Branch',
+                    value: branch.isNotEmpty ? branch : 'N/A',
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Date Joined
+                  _buildInfoCard(
+                    icon: Icons.calendar_today,
+                    label: 'Date Joined',
+                    value: dateJoined.isNotEmpty ? dateJoined.split('T')[0] : 'N/A',
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Salary
+                  _buildInfoCard(
+                    icon: Icons.attach_money,
+                    label: 'Salary',
+                    value: salary != null ? '₦${salary.toStringAsFixed(2)}' : 'N/A',
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Education Section
+                  Text(
+                    'Education',
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
-                    const SizedBox(height: 12),
+                  ),
+                  const SizedBox(height: 16),
 
-                    // Phone
-                    _buildInfoCard(
-                      icon: Icons.phone,
-                      label: 'Phone Number',
-                      value: phoneNumber,
-                      controller: _phoneController,
-                      isEditing: _isEditing,
-                      keyboardType: TextInputType.phone,
-                    ),
-                    const SizedBox(height: 24),
+                  // Course of Study
+                  _buildInfoCard(
+                    icon: Icons.school,
+                    label: 'Course of Study',
+                    value: courseOfStudy.isNotEmpty ? courseOfStudy : 'N/A',
+                  ),
+                  const SizedBox(height: 12),
 
-                    // Work Information Section
-                    Text(
-                      'Work Information',
-                      style: GoogleFonts.inter(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
+                  // Grade/Class
+                  _buildInfoCard(
+                    icon: Icons.grade,
+                    label: 'Grade/Class',
+                    value: grade.isNotEmpty ? grade : 'N/A',
+                  ),
+                  const SizedBox(height: 12),
 
-                    // Role
-                    _buildInfoCard(
-                      icon: Icons.work,
-                      label: 'Role',
-                      value: userRole,
-                      isEditing: false,
-                    ),
-                    const SizedBox(height: 12),
+                  // Institution
+                  _buildInfoCard(
+                    icon: Icons.business,
+                    label: 'Institution',
+                    value: institution.isNotEmpty ? institution : 'N/A',
+                  ),
 
-                    // Department
-                    if (department.isNotEmpty)
-                      _buildInfoCard(
-                        icon: Icons.business,
-                        label: 'Department',
-                        value: department,
-                        isEditing: false,
-                      ),
-                    if (department.isNotEmpty) const SizedBox(height: 12),
-
-                    // Branch
-                    if (branch.isNotEmpty)
-                      _buildInfoCard(
-                        icon: Icons.location_on,
-                        label: 'Branch',
-                        value: branch,
-                        isEditing: false,
-                      ),
-                    if (branch.isNotEmpty) const SizedBox(height: 12),
-
-                    // Date Joined
-                    if (dateJoined.isNotEmpty)
-                      _buildInfoCard(
-                        icon: Icons.calendar_today,
-                        label: 'Date Joined',
-                        value: dateJoined.split('T')[0],
-                        isEditing: false,
-                      ),
-
-                    const SizedBox(height: 24),
-
-                    // Education Section
-                    Text(
-                      'Education',
-                      style: GoogleFonts.inter(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Course of Study
-                    if (_userData?['course'] != null && _userData!['course'].toString().isNotEmpty)
-                      _buildInfoCard(
-                        icon: Icons.school,
-                        label: 'Course of Study',
-                        value: _userData!['course'].toString(),
-                        isEditing: false,
-                      ),
-                    if (_userData?['course'] != null && _userData!['course'].toString().isNotEmpty) 
-                      const SizedBox(height: 12),
-
-                    // Grade/Class
-                    if (_userData?['grade'] != null && _userData!['grade'].toString().isNotEmpty)
-                      _buildInfoCard(
-                        icon: Icons.grade,
-                        label: 'Grade/Class',
-                        value: _userData!['grade'].toString(),
-                        isEditing: false,
-                      ),
-                    if (_userData?['grade'] != null && _userData!['grade'].toString().isNotEmpty)
-                      const SizedBox(height: 12),
-
-                    // Institution
-                    if (_userData?['institution'] != null && _userData!['institution'].toString().isNotEmpty)
-                      _buildInfoCard(
-                        icon: Icons.business,
-                        label: 'Institution',
-                        value: _userData!['institution'].toString(),
-                        isEditing: false,
-                      ),
-
-                    const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
                     // Work Experience Section
                     Text(
@@ -420,68 +405,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
 
-                    const SizedBox(height: 32),
-
-                    // Action Buttons
-                    if (_isEditing)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  _isEditing = false;
-                                  _nameController.text = _userData?['full_name'] ?? '';
-                                  _emailController.text = _userData?['email'] ?? '';
-                                  _phoneController.text = _userData?['phone_number'] ?? '';
-                                });
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.grey[300],
-                                foregroundColor: Colors.black87,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 0,
-                              ),
-                              child: Text(
-                                'Cancel',
-                                style: GoogleFonts.inter(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: _saveProfile,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF4CAF50),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 2,
-                              ),
-                              child: Text(
-                                'Save Changes',
-                                style: GoogleFonts.inter(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                    const SizedBox(height: 32),
-                  ],
-                ),
+                  const SizedBox(height: 32),
+                ],
               ),
             ),
           ],
@@ -494,9 +419,6 @@ class _ProfilePageState extends State<ProfilePage> {
     required IconData icon,
     required String label,
     required String value,
-    TextEditingController? controller,
-    bool isEditing = false,
-    TextInputType? keyboardType,
   }) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -536,41 +458,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                if (isEditing && controller != null)
-                  TextFormField(
-                    controller: controller,
-                    keyboardType: keyboardType,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      color: Colors.black87,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    decoration: InputDecoration(
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                      border: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      focusedBorder: const UnderlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF4CAF50)),
-                      ),
-                    ),
-                    validator: (val) {
-                      if (val == null || val.isEmpty) {
-                        return 'This field is required';
-                      }
-                      return null;
-                    },
-                  )
-                else
-                  Text(
-                    value.isEmpty ? 'Not provided' : value,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      color: value.isEmpty ? Colors.grey[400] : Colors.black87,
-                      fontWeight: FontWeight.w600,
-                    ),
+                Text(
+                  value,
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w600,
                   ),
+                ),
               ],
             ),
           ),

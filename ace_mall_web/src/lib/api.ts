@@ -59,15 +59,12 @@ class ApiClient {
     }
 
     const url = `${this.baseUrl}${endpoint}`;
-    console.log(`[API] Fetching: ${url}`);
 
     try {
       const response = await fetch(url, {
         ...options,
         headers,
       });
-
-      console.log(`[API] Response status: ${response.status} for ${endpoint}`);
 
       if (response.status === 401) {
         // Only redirect on actual auth failures, not on navigation
@@ -84,7 +81,6 @@ class ApiClient {
       }
 
       const data = await response.json();
-      console.log(`[API] Data received for ${endpoint}:`, typeof data, Array.isArray(data) ? data.length : 'object');
       return data;
     } catch (error) {
       console.error(`[API] Error fetching ${endpoint}:`, error);
@@ -202,9 +198,9 @@ class ApiClient {
     return response.staff || [];
   }
 
-  async getStaffById(id: string): Promise<User> {
-    const response = await this.request<{ user: User; permission_level: string }>(`/profile/${id}`);
-    return response.user;
+  async getStaffById(id: string): Promise<{ user: User; permission_level: string }> {
+    const response = await this.request<{ user: User; permission_level: string }>(`/staff/${id}`);
+    return response;
   }
 
   async getStaffStats(): Promise<{ total_staff: number; active_staff: number; terminated_staff: number }> {
@@ -360,6 +356,12 @@ class ApiClient {
     return response.history || [];
   }
 
+  async deletePromotion(promotionId: number): Promise<{ message: string }> {
+    return this.request(`/promotions/${promotionId}`, {
+      method: 'DELETE',
+    });
+  }
+
   // ============================================
   // TERMINATIONS
   // ============================================
@@ -432,6 +434,29 @@ class ApiClient {
     return this.request(`/staff/${staffId}/work-experience`, {
       method: 'PUT',
       body: JSON.stringify({ work_experience: experiences }),
+    });
+  }
+
+  async updateRoleHistory(staffId: string, roleHistory: any[]): Promise<{ message: string }> {
+    return this.request(`/staff/${staffId}/role-history`, {
+      method: 'PUT',
+      body: JSON.stringify({ role_history: roleHistory }),
+    });
+  }
+
+  async uploadGuarantorDocument(
+    staffId: string, 
+    guarantorNumber: number, 
+    documentType: string, 
+    documentUrl: string
+  ): Promise<{ message: string }> {
+    return this.request(`/staff/${staffId}/guarantor-document`, {
+      method: 'POST',
+      body: JSON.stringify({
+        guarantor_number: guarantorNumber,
+        document_type: documentType,
+        document_url: documentUrl,
+      }),
     });
   }
 

@@ -1,0 +1,41 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "ace_mall_app",
+            "cwd": "ace_mall_app",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "ace_mall_app (profile mode)",
+            "cwd": "ace_mall_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "ace_mall_app (release mode)",
+            "cwd": "ace_mall_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "ace_mall_app (Flutter macOS)",
+            "program": "lib/main.dart",
+            "cwd": "ace_mall_app",
+            "deviceId": "macos",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "ace_mall_app (Flutter)",
+            "program": "lib/main.dart",
+            "cwd": "ace_mall_app",
+            "request": "launch",
+            "type": "dart"
+        }
+    ]
+}

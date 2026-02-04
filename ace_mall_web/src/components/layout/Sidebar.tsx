@@ -27,7 +27,13 @@ import {
   User,
   Bell,
   ShoppingCart,
+  X,
 } from 'lucide-react';
+
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
 interface NavItem {
   label: string;
@@ -150,7 +156,7 @@ const navItems: NavItem[] = [
   },
 ];
 
-export function Sidebar() {
+export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
@@ -169,14 +175,39 @@ export function Sidebar() {
   });
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40 overflow-y-auto">
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-100">
-        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-          <ShoppingCart className="w-5 h-5 text-primary" />
+    <>
+      {/* Mobile backdrop overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          "fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-50 overflow-y-auto transition-transform duration-300 ease-in-out",
+          "lg:translate-x-0",
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        {/* Logo and Close Button */}
+        <div className="flex items-center justify-between gap-3 px-6 py-5 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <ShoppingCart className="w-5 h-5 text-primary" />
+            </div>
+            <span className="text-xl font-bold text-primary">Ace Mall</span>
+          </div>
+          {/* Close button - only visible on mobile */}
+          <button
+            onClick={onClose}
+            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
+          >
+            <X className="w-5 h-5 text-gray-600" />
+          </button>
         </div>
-        <span className="text-xl font-bold text-primary">Ace Mall</span>
-      </div>
 
       {/* Navigation */}
       <nav className="p-4 space-y-1">
@@ -244,6 +275,7 @@ export function Sidebar() {
           );
         })}
       </nav>
-    </aside>
+      </aside>
+    </>
   );
 }

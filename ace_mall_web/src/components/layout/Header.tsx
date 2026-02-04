@@ -46,20 +46,21 @@ export function Header({ onMenuClick }: HeaderProps) {
   };
 
   return (
-    <header className="fixed top-0 right-0 left-64 h-16 bg-white border-b border-gray-200 z-30 px-6 flex items-center justify-between">
+    <header className="fixed top-0 right-0 lg:left-64 left-0 h-16 bg-white border-b border-gray-200 z-50 px-4 lg:px-6 flex items-center justify-between">
       {/* Left side - Mobile menu button */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
+          className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          aria-label="Open menu"
         >
-          <Menu className="w-5 h-5" />
+          <Menu className="w-6 h-6 text-gray-700" />
         </button>
-        <div>
-          <h1 className="text-lg font-semibold text-gray-900">
+        <div className="hidden sm:block">
+          <h1 className="text-base lg:text-lg font-semibold text-gray-900">
             Welcome, {user?.full_name?.split(' ')[0] || 'User'}
           </h1>
-          <p className="text-sm text-gray-500">{user?.role_name || 'Staff'}</p>
+          <p className="text-xs lg:text-sm text-gray-500">{user?.role_name || 'Staff'}</p>
         </div>
       </div>
 

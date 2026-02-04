@@ -57,7 +57,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('API auth check failed:', error);
       // If API fails but we have valid cached user, keep using it
       if (cachedUser && cachedUser.id && cachedUser.full_name) {
-        console.log('Using cached user data due to API failure');
         // Keep the cached user, don't clear anything
       } else {
         // No valid cached data and API failed - clear auth

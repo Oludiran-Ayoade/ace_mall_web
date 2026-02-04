@@ -39,7 +39,7 @@ export default function SubmitReviewPage() {
 
       try {
         const staffData = await api.getStaffById(staffId);
-        setStaff(staffData);
+        setStaff(staffData.user);
       } catch (error) {
         console.error('Failed to fetch staff:', error);
         toast({ title: 'Failed to load staff details', variant: 'destructive' });

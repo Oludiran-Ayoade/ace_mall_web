@@ -52,15 +52,10 @@ export default function SignInPage() {
       if (result.success) {
         toast({ title: 'Signed in successfully!', variant: 'success' });
         
-        // Get user data from localStorage to determine route
-        const userData = localStorage.getItem('user');
-        if (userData) {
-          const user = JSON.parse(userData);
-          const route = getDashboardRoute(user.role_name || '');
-          router.push(route);
-        } else {
-          router.push('/dashboard');
-        }
+        // Use window.location for immediate redirect
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 500);
       } else {
         toast({ 
           title: 'Login failed', 

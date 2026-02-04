@@ -9,6 +9,28 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LoadingSpinner, BouncingDots } from '@/components/shared/LoadingSpinner';
 import { toast } from '@/components/ui/toaster';
+import { NIGERIAN_STATES, GRADE_OPTIONS } from '@/lib/constants';
+
+// Helper function to calculate age from DOB
+const calculateAge = (dob: string): number => {
+  if (!dob) return 0;
+  const birthDate = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+};
+
+// Helper function to validate age matches DOB
+const validateAgeMatchesDOB = (dob: string, age: string): boolean => {
+  if (!dob || !age) return true; // Skip validation if either is empty
+  const calculatedAge = calculateAge(dob);
+  const providedAge = parseInt(age);
+  return calculatedAge === providedAge;
+};
 import {
   ArrowLeft,
   ArrowRight,
@@ -199,9 +221,31 @@ export default function AddStaffPage() {
     }
   }, [currentStep]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // Auto-calculate age when DOB changes
+    if (name === 'date_of_birth' && value) {
+      const age = calculateAge(value);
+      setFormData(prev => ({ ...prev, [name]: value }));
+    } else if (name === 'g1_dob' && value) {
+      const age = calculateAge(value);
+      setFormData(prev => ({ ...prev, [name]: value, g1_age: age.toString() }));
+    } else if (name === 'g2_dob' && value) {
+      const age = calculateAge(value);
+      setFormData(prev => ({ ...prev, [name]: value, g2_age: age.toString() }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/,/g, ''); // Remove existing commas
+    if (value === '' || /^\d+$/.test(value)) {
+      const formatted = value ? parseInt(value).toLocaleString() : '';
+      setFormData(prev => ({ ...prev, current_salary: value }));
+      e.target.value = formatted;
+    }
   };
 
   const handleNext = () => {
@@ -217,6 +261,37 @@ export default function AddStaffPage() {
   };
 
   const handleSubmit = async () => {
+    // Validate date_joined is provided
+    if (!formData.date_joined) {
+      toast({ title: 'Date Joined is required', variant: 'destructive' });
+      return;
+    }
+    
+    // Validate DOB and age match for staff
+    if (formData.date_of_birth) {
+      const calculatedAge = calculateAge(formData.date_of_birth);
+      if (calculatedAge < 16) {
+        toast({ title: 'Staff must be at least 16 years old', variant: 'destructive' });
+        return;
+      }
+    }
+    
+    // Validate guarantor 1 DOB and age match
+    if (formData.g1_dob && formData.g1_age) {
+      if (!validateAgeMatchesDOB(formData.g1_dob, formData.g1_age)) {
+        toast({ title: 'Guarantor 1: Age does not match Date of Birth', variant: 'destructive' });
+        return;
+      }
+    }
+    
+    // Validate guarantor 2 DOB and age match
+    if (formData.g2_dob && formData.g2_age) {
+      if (!validateAgeMatchesDOB(formData.g2_dob, formData.g2_age)) {
+        toast({ title: 'Guarantor 2: Age does not match Date of Birth', variant: 'destructive' });
+        return;
+      }
+    }
+    
     if (!formData.full_name || !formData.email || !formData.role_id) {
       toast({ title: 'Please fill required fields', variant: 'destructive' });
       return;
@@ -225,10 +300,78 @@ export default function AddStaffPage() {
     setIsSubmitting(true);
 
     try {
-      const staffData = {
+      // Upload documents to Cloudinary first
+      const uploadedDocs: Record<string, string> = {};
+      const uploadedG1Docs: Record<string, string> = {};
+      const uploadedG2Docs: Record<string, string> = {};
+
+      // Upload staff documents
+      for (const [key, file] of Object.entries(documents)) {
+        if (file) {
+          try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'flutter_uploads');
+            formData.append('folder', 'ace_mall_staff/documents');
+            
+            const response = await fetch('https://api.cloudinary.com/v1_1/desk7uuna/upload', {
+              method: 'POST',
+              body: formData,
+            });
+            const data = await response.json();
+            uploadedDocs[key] = data.secure_url;
+          } catch (error) {
+            console.error(`Failed to upload ${key}:`, error);
+          }
+        }
+      }
+
+      // Upload guarantor 1 documents
+      for (const [key, file] of Object.entries(g1Documents)) {
+        if (file) {
+          try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'flutter_uploads');
+            formData.append('folder', 'ace_mall_staff/guarantors');
+            
+            const response = await fetch('https://api.cloudinary.com/v1_1/desk7uuna/upload', {
+              method: 'POST',
+              body: formData,
+            });
+            const data = await response.json();
+            uploadedG1Docs[key] = data.secure_url;
+          } catch (error) {
+            console.error(`Failed to upload G1 ${key}:`, error);
+          }
+        }
+      }
+
+      // Upload guarantor 2 documents
+      for (const [key, file] of Object.entries(g2Documents)) {
+        if (file) {
+          try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'flutter_uploads');
+            formData.append('folder', 'ace_mall_staff/guarantors');
+            
+            const response = await fetch('https://api.cloudinary.com/v1_1/desk7uuna/upload', {
+              method: 'POST',
+              body: formData,
+            });
+            const data = await response.json();
+            uploadedG2Docs[key] = data.secure_url;
+          } catch (error) {
+            console.error(`Failed to upload G2 ${key}:`, error);
+          }
+        }
+      }
+
+      const staffData: any = {
         full_name: formData.full_name,
         email: formData.email,
-        phone_number: formData.phone_number || undefined,
+        phone: formData.phone_number || undefined,
         gender: formData.gender || undefined,
         date_of_birth: formData.date_of_birth || undefined,
         home_address: formData.home_address || undefined,
@@ -238,11 +381,82 @@ export default function AddStaffPage() {
         department_id: formData.department_id || undefined,
         branch_id: formData.branch_id || undefined,
         employee_id: formData.employee_id || undefined,
-        current_salary: formData.current_salary ? parseFloat(formData.current_salary) : undefined,
+        salary: formData.current_salary ? parseFloat(formData.current_salary) : undefined,
         course_of_study: formData.course_of_study || undefined,
         grade: formData.grade || undefined,
         institution: formData.institution || undefined,
       };
+
+      // Add Next of Kin if provided
+      if (formData.nok_name) {
+        staffData.next_of_kin = {
+          full_name: formData.nok_name,
+          relationship: formData.nok_relationship || undefined,
+          email: formData.nok_email || undefined,
+          phone: formData.nok_phone || undefined,
+          home_address: formData.nok_home_address || undefined,
+          work_address: formData.nok_work_address || undefined,
+        };
+      }
+
+      // Add Guarantor 1 if provided
+      if (formData.g1_name) {
+        staffData.guarantor_1 = {
+          full_name: formData.g1_name,
+          phone: formData.g1_phone || undefined,
+          occupation: formData.g1_occupation || undefined,
+          relationship: formData.g1_relationship || undefined,
+          sex: formData.g1_sex || undefined,
+          age: formData.g1_age ? parseInt(formData.g1_age) : undefined,
+          home_address: formData.g1_address || undefined,
+          email: formData.g1_email || undefined,
+          grade_level: formData.g1_grade_level || undefined,
+        };
+      }
+
+      // Add Guarantor 2 if provided
+      if (formData.g2_name) {
+        staffData.guarantor_2 = {
+          full_name: formData.g2_name,
+          phone: formData.g2_phone || undefined,
+          occupation: formData.g2_occupation || undefined,
+          relationship: formData.g2_relationship || undefined,
+          sex: formData.g2_sex || undefined,
+          age: formData.g2_age ? parseInt(formData.g2_age) : undefined,
+          home_address: formData.g2_address || undefined,
+          email: formData.g2_email || undefined,
+          grade_level: formData.g2_grade_level || undefined,
+        };
+      }
+
+      // Add staff document URLs
+      if (uploadedDocs.passport) staffData.passport_url = uploadedDocs.passport;
+      if (uploadedDocs.validId) staffData.national_id_url = uploadedDocs.validId;
+      if (uploadedDocs.birthCertificate) staffData.birth_certificate_url = uploadedDocs.birthCertificate;
+      if (uploadedDocs.waecCertificate) staffData.waec_certificate_url = uploadedDocs.waecCertificate;
+      if (uploadedDocs.degreeCertificate) staffData.degree_certificate_url = uploadedDocs.degreeCertificate;
+      if (uploadedDocs.nyscCertificate) staffData.nysc_certificate_url = uploadedDocs.nyscCertificate;
+      if (uploadedDocs.stateOfOriginCert) staffData.state_of_origin_cert_url = uploadedDocs.stateOfOriginCert;
+
+      // Add guarantor 1 document URLs
+      if (uploadedG1Docs.Passport) staffData.g1_passport_url = uploadedG1Docs.Passport;
+      if (uploadedG1Docs.NationalId) staffData.g1_national_id_url = uploadedG1Docs.NationalId;
+      if (uploadedG1Docs.WorkId) staffData.g1_work_id_url = uploadedG1Docs.WorkId;
+
+      // Add guarantor 2 document URLs
+      if (uploadedG2Docs.Passport) staffData.g2_passport_url = uploadedG2Docs.Passport;
+      if (uploadedG2Docs.NationalId) staffData.g2_national_id_url = uploadedG2Docs.NationalId;
+      if (uploadedG2Docs.WorkId) staffData.g2_work_id_url = uploadedG2Docs.WorkId;
+
+      // Add work experience if provided
+      if (workExperiences.length > 0) {
+        staffData.work_experience = workExperiences.map(exp => ({
+          company_name: exp.company,
+          position: exp.roles,
+          start_date: exp.startDate,
+          end_date: exp.endDate || undefined,
+        }));
+      }
 
       await api.createStaff(staffData);
       toast({ title: 'Staff created successfully!', variant: 'success' });
@@ -386,14 +600,56 @@ export default function AddStaffPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-500">State of Origin</label>
+                  <label className="text-sm text-gray-500">Date Joined *</label>
                   <Input
+                    name="date_joined"
+                    type="date"
+                    value={formData.date_joined}
+                    onChange={handleChange}
+                    className="mt-1"
+                    placeholder="Date staff joined the company"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-500">Employee ID</label>
+                  <Input
+                    name="employee_id"
+                    value={formData.employee_id}
+                    onChange={handleChange}
+                    placeholder="Enter employee ID"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-500">State of Origin</label>
+                  <select
                     name="state_of_origin"
                     value={formData.state_of_origin}
                     onChange={handleChange}
-                    placeholder="Enter state of origin"
-                    className="mt-1"
-                  />
+                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  >
+                    <option value="">Select state</option>
+                    {NIGERIAN_STATES.map((state) => (
+                      <option key={state} value={state}>
+                        {state}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-500">Marital Status</label>
+                  <select
+                    name="marital_status"
+                    value={formData.marital_status}
+                    onChange={handleChange}
+                    className="w-full h-11 mt-1 px-4 rounded-xl border border-input bg-background"
+                  >
+                    <option value="">Select marital status</option>
+                    <option value="Single">Single</option>
+                    <option value="Married">Married</option>
+                    <option value="Divorced">Divorced</option>
+                    <option value="Widowed">Widowed</option>
+                  </select>
                 </div>
                 <div className="md:col-span-2">
                   <label className="text-sm text-gray-500">Home Address</label>
@@ -422,11 +678,11 @@ export default function AddStaffPage() {
                   <label className="text-sm text-gray-500">Grade</label>
                   <select name="grade" value={formData.grade} onChange={handleChange} className="w-full h-11 mt-1 px-4 rounded-xl border border-input bg-background">
                     <option value="">Select grade</option>
-                    <option value="First Class">First Class</option>
-                    <option value="2-1">2:1 (Second Class Upper)</option>
-                    <option value="2-2">2:2 (Second Class Lower)</option>
-                    <option value="Third Class">Third Class</option>
-                    <option value="Pass">Pass</option>
+                    {GRADE_OPTIONS.map((grade) => (
+                      <option key={grade} value={grade}>
+                        {grade}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -556,7 +812,14 @@ export default function AddStaffPage() {
                 </div>
                 <div>
                   <label className="text-sm text-gray-500">Monthly Salary (₦) *</label>
-                  <Input name="current_salary" type="number" value={formData.current_salary} onChange={handleChange} placeholder="Enter monthly salary" className="mt-1" />
+                  <Input 
+                    name="current_salary" 
+                    type="text" 
+                    value={formData.current_salary ? parseInt(formData.current_salary).toLocaleString() : ''} 
+                    onChange={handleSalaryChange} 
+                    placeholder="Enter monthly salary" 
+                    className="mt-1" 
+                  />
                 </div>
               </div>
             </div>

@@ -133,10 +133,9 @@ export default function RosterManagePage() {
               staff_id: staff.staff_id,
               staff_name: staff.staff_name,
               day_of_week: day,
-              shift_type: shiftType,
+              shift_type: shiftType as 'morning' | 'afternoon' | 'evening' | 'night',
               start_time: shiftConfig?.startTime || '09:00',
               end_time: shiftConfig?.endTime || '17:00',
-              status: 'scheduled',
             });
           }
         });

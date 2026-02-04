@@ -15,6 +15,7 @@ class _HRDashboardPageState extends State<HRDashboardPage> {
   int _totalStaff = 0;
   int _totalBranches = 0;
   bool _isLoading = true;
+  String _hrName = 'HR Admin';
 
   @override
   void initState() {
@@ -27,6 +28,7 @@ class _HRDashboardPageState extends State<HRDashboardPage> {
       // Verify user is HR
       final userData = await _apiService.getCurrentUser();
       final roleName = userData['role_name'] as String?;
+      final fullName = userData['full_name'] as String?;
       
       if (roleName == null || !roleName.contains('HR') && !roleName.contains('Human Resource')) {
         if (!mounted) return;
@@ -45,6 +47,7 @@ class _HRDashboardPageState extends State<HRDashboardPage> {
       final branches = await _apiService.getBranches();
       if (mounted) {
         setState(() {
+          _hrName = fullName ?? 'HR Admin';
           _totalStaff = response['total_staff'] ?? 0;
           _totalBranches = branches.length;
           _isLoading = false;
@@ -153,7 +156,7 @@ class _HRDashboardPageState extends State<HRDashboardPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Welcome',
+                          'Welcome, $_hrName',
                           style: GoogleFonts.inter(
                             fontSize: 28,
                             fontWeight: FontWeight.w700,
