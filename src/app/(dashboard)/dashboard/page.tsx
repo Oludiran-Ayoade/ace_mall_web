@@ -194,8 +194,8 @@ export default function DashboardPage() {
     },
     {
       title: 'My Profile',
-      description: 'Update your information',
-      href: '/dashboard/profile',
+      description: 'View your personal information',
+      href: '/dashboard/my-profile',
       icon: <Users className="w-6 h-6" />,
       color: 'bg-blue-500',
     },
