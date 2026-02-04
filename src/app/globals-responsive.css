@@ -47,7 +47,7 @@
     font-size: 16px !important;
     font-weight: 500 !important;
     background-color: rgba(34, 197, 94, 0.05) !important;
-    border: 2px solid rgba(34, 197, 94, 0.2) !important;
+    border: 1px solid rgba(34, 197, 94, 0.2) !important;
   }
 
   input[type="date"]:focus {

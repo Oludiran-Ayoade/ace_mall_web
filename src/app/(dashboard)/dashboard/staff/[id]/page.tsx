@@ -375,7 +375,7 @@ export default function StaffDetailPage() {
                       toast.error('Failed to update date joined');
                     }
                   }}
-                  className="w-full sm:max-w-[280px] h-12 px-4 text-base font-medium border-2 border-green-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all bg-green-50/50 hover:bg-green-50"
+                  className="w-full sm:max-w-[280px] h-12 px-4 text-base font-medium border border-green-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all bg-green-50/50 hover:bg-green-50"
                 />
               ) : (
                 <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-50 rounded-lg border border-gray-200">
