@@ -360,9 +360,9 @@ export default function StaffDetailPage() {
               <p className="font-medium">{staff.branch_name || 'Not assigned'}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Date Joined</p>
+              <p className="text-sm text-gray-500 mb-2">Date Joined</p>
               {permissionLevel === 'view_full' ? (
-                <div className="flex items-center gap-2">
+                <div className="relative">
                   <Input
                     type="date"
                     value={staff.date_joined ? staff.date_joined.split('T')[0] : ''}
@@ -376,13 +376,17 @@ export default function StaffDetailPage() {
                         toast.error('Failed to update date joined');
                       }
                     }}
-                    className="max-w-[200px]"
+                    className="w-full sm:max-w-[240px] h-12 px-4 text-base font-medium border-2 border-green-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all bg-green-50/50 hover:bg-green-50"
                   />
+                  <Edit className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-600 pointer-events-none" />
                 </div>
               ) : (
-                <p className="font-medium">
-                  {staff.date_joined ? formatDate(staff.date_joined) : 'Not provided'}
-                </p>
+                <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-50 rounded-lg border border-gray-200">
+                  <Calendar className="w-4 h-4 text-gray-500" />
+                  <p className="font-medium text-gray-900">
+                    {staff.date_joined ? formatDate(staff.date_joined) : 'Not provided'}
+                  </p>
+                </div>
               )}
             </div>
             {permissionLevel === 'view_full' && (
