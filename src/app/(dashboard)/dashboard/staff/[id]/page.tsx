@@ -50,6 +50,8 @@ export default function StaffDetailPage() {
   const [selectedRoleId, setSelectedRoleId] = useState<string>('');
   const [isSavingRole, setIsSavingRole] = useState(false);
   const [viewingDocument, setViewingDocument] = useState<{ url: string; title: string } | null>(null);
+  const [isEditingExamScores, setIsEditingExamScores] = useState(false);
+  const [examScoresValue, setExamScoresValue] = useState<string>('');
 
   useEffect(() => {
     const fetchStaffData = async () => {
@@ -397,25 +399,62 @@ export default function StaffDetailPage() {
             <div>
               <p className="text-sm text-gray-500 mb-2">Exam Scores</p>
               {permissionLevel === 'view_full' ? (
-                <Input
-                  type="text"
-                  value={staff.exam_scores && staff.exam_scores.length > 0 ? staff.exam_scores[0].score : ''}
-                  onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
-                    const newScore = e.target.value;
-                    try {
-                      await api.updateStaffProfile(staffId, { exam_scores: newScore } as any);
-                      // Update local state
-                      setStaff({ 
-                        ...staff, 
-                        exam_scores: newScore ? [{ exam_type: 'General', score: newScore }] : [] 
-                      });
-                      toast.success('Exam scores updated successfully!');
-                    } catch (error) {
-                      toast.error('Failed to update exam scores');
-                    }
-                  }}
-                  className="w-full sm:max-w-[400px] h-12 px-4 text-base font-medium border border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all bg-purple-50/50 hover:bg-purple-50"
-                />
+                isEditingExamScores ? (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="text"
+                      value={examScoresValue}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setExamScoresValue(e.target.value)}
+                      className="flex-1 sm:max-w-[400px] h-12 px-4 text-base font-medium border border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all bg-purple-50/50"
+                    />
+                    <Button
+                      size="sm"
+                      onClick={async () => {
+                        try {
+                          await api.updateStaffProfile(staffId, { exam_scores: examScoresValue } as any);
+                          setStaff({ 
+                            ...staff, 
+                            exam_scores: examScoresValue ? [{ exam_type: 'General', score: examScoresValue }] : [] 
+                          });
+                          setIsEditingExamScores(false);
+                          toast.success('Exam scores updated successfully!');
+                        } catch (error) {
+                          toast.error('Failed to update exam scores');
+                        }
+                      }}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setIsEditingExamScores(false);
+                        setExamScoresValue(staff.exam_scores && staff.exam_scores.length > 0 ? staff.exam_scores[0].score : '');
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <p className="text-gray-500">
+                      {staff.exam_scores && staff.exam_scores.length > 0 ? staff.exam_scores[0].score : 'Not provided'}
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setExamScoresValue(staff.exam_scores && staff.exam_scores.length > 0 ? staff.exam_scores[0].score : '');
+                        setIsEditingExamScores(true);
+                      }}
+                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )
               ) : (
                 <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-50 rounded-lg border border-gray-200">
                   <GraduationCap className="w-4 h-4 text-gray-500" />
