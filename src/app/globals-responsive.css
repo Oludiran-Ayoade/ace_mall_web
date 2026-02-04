@@ -10,7 +10,7 @@
 
   /* Main content area - add extra top padding for fixed header */
   main {
-    padding-top: 5rem !important; /* 80px - accounts for 64px header + extra space */
+    padding-top: 6rem !important; /* 96px - accounts for 64px header + extra space for content visibility */
     min-height: 100vh;
   }
 
