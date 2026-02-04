@@ -18,6 +18,7 @@ export default function ProfilePage() {
   const { user: authUser, isLoading: authLoading } = useAuth();
   const [staffData, setStaffData] = useState<UserType | null>(null);
   const [workExperience, setWorkExperience] = useState<WorkExperience[]>([]);
+  const [roleHistory, setRoleHistory] = useState<any[]>([]); // Ace Mall internal experience
   const [promotions, setPromotions] = useState<PromotionHistory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -37,6 +38,7 @@ export default function ProfilePage() {
       ]);
       setStaffData(profileRes.user);
       setWorkExperience(profileRes.user.work_experience || []);
+      setRoleHistory(profileRes.user.role_history || []); // Internal Ace Mall roles
       setPromotions(promotionsRes || []);
     } catch (error) {
       console.error('Failed to load profile:', error);
@@ -211,12 +213,62 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
 
-      {/* Work Experience */}
+      {/* Ace Mall Experience (Internal Role History) */}
+      <Card>
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-white">
+          <CardTitle className="flex items-center gap-2 text-blue-700">
+            <Briefcase className="w-5 h-5" />
+            Ace Mall Experience
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-6">
+          {roleHistory.length > 0 ? (
+            <div className="space-y-4">
+              {roleHistory.map((role, index) => (
+                <div
+                  key={index}
+                  className="p-4 bg-blue-50 rounded-lg border border-blue-200"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h4 className="font-bold text-gray-900">{role.role_name}</h4>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {role.department_name && (
+                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                            {role.department_name}
+                          </span>
+                        )}
+                        {role.branch_name && (
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                            {role.branch_name}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <span className="text-sm text-gray-500 bg-white px-3 py-1 rounded-full border">
+                      {role.start_date && formatDate(role.start_date)} - {role.end_date ? formatDate(role.end_date) : 'Present'}
+                    </span>
+                  </div>
+                  {role.promotion_reason && (
+                    <p className="text-sm text-gray-600 mt-2">
+                      <strong>Reason:</strong> {role.promotion_reason}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-8">No Ace Mall role history</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Previous Work Experience (External) */}
       <Card>
         <CardHeader className="bg-gradient-to-r from-green-50 to-white">
           <CardTitle className="flex items-center gap-2 text-green-700">
             <Briefcase className="w-5 h-5" />
-            Work Experience
+            Previous Work Experience
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
@@ -240,7 +292,7 @@ export default function ProfilePage() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-8">No work experience added</p>
+            <p className="text-gray-500 text-center py-8">No previous work experience</p>
           )}
         </CardContent>
       </Card>
