@@ -2,6 +2,18 @@
 
 /* Base mobile styles */
 @media (max-width: 768px) {
+  /* Fix scrolling - ensure content can scroll to top */
+  body {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Main content area - add extra top padding for fixed header */
+  main {
+    padding-top: 5rem !important; /* 80px - accounts for 64px header + extra space */
+    min-height: 100vh;
+  }
+
   /* Typography adjustments */
   h1 {
     font-size: 1.5rem !important;
@@ -279,9 +291,15 @@
 
 /* Profile page specific responsive styles */
 @media (max-width: 768px) {
+  /* Ensure scrollable container */
+  .space-y-6 {
+    padding-bottom: 2rem !important; /* Extra bottom padding for comfortable scrolling */
+  }
+
   /* Profile header adjustments */
   .max-w-5xl {
     max-width: 100% !important;
+    padding-top: 0 !important; /* Remove extra top padding as main already has it */
   }
 
   /* Profile cards */
