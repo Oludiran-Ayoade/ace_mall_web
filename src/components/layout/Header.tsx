@@ -46,7 +46,7 @@ export function Header({ onMenuClick }: HeaderProps) {
   };
 
   return (
-    <header className="fixed top-0 right-0 lg:left-64 left-0 h-16 bg-white border-b border-gray-200 z-30 px-4 lg:px-6 flex items-center justify-between">
+    <header className="fixed top-0 right-0 lg:left-64 left-0 h-16 bg-white border-b border-gray-200 z-50 px-4 lg:px-6 flex items-center justify-between">
       {/* Left side - Mobile menu button */}
       <div className="flex items-center gap-3">
         <button

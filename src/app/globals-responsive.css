@@ -2,16 +2,25 @@
 
 /* Base mobile styles */
 @media (max-width: 768px) {
-  /* Fix scrolling - ensure content can scroll to top */
+  /* Ensure the body allows scrolling */
   body {
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Main content area - add extra top padding for fixed header */
+  /* Main content area adjustment */
   main {
-    padding-top: 6rem !important; /* 96px - accounts for 64px header + extra space for content visibility */
+    /* Use 6.5rem for 104px breathing room. Adding env(safe-area-inset-top) handles mobile notches/status bars */
+    padding-top: calc(6.5rem + env(safe-area-inset-top)) !important;
     min-height: 100vh;
+    width: 100%;
+    position: relative;
+    display: block; /* Ensure it's not collapsed */
+  }
+
+  /* Extra safety: target the first child element (the green card) directly */
+  main > div:first-child {
+    margin-top: 0.5rem;
   }
 
   /* Typography adjustments */
