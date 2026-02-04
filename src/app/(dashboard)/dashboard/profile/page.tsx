@@ -28,13 +28,7 @@ import {
 
 export default function ProfilePage() {
   const { user, refreshUser, isLoading: authLoading } = useAuth();
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [formData, setFormData] = useState({
-    full_name: user?.full_name || '',
-    phone_number: user?.phone_number || '',
-    home_address: user?.home_address || '',
-  });
+  // Profile is read-only - staff cannot edit their own profile
 
   if (authLoading || !user) {
     return (
@@ -44,19 +38,7 @@ export default function ProfilePage() {
     );
   }
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      await api.updateStaffProfile(user.id, formData);
-      await refreshUser();
-      setIsEditing(false);
-      toast({ title: 'Profile updated successfully', variant: 'success' });
-    } catch (error) {
-      toast({ title: 'Failed to update profile', variant: 'destructive' });
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  // No editing allowed - profile is read-only
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -69,16 +51,13 @@ export default function ProfilePage() {
                 <img
                   src={user.profile_image_url}
                   alt={user.full_name}
-                  className="w-24 h-24 rounded-full object-cover"
+                  className="w-24 h-24 rounded-full object-cover ring-4 ring-green-100"
                 />
               ) : (
-                <div className="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white text-2xl font-bold">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white text-2xl font-bold ring-4 ring-green-100">
                   {getInitials(user.full_name)}
                 </div>
               )}
-              <button className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-lg border hover:bg-gray-50">
-                <Camera className="w-4 h-4 text-gray-600" />
-              </button>
             </div>
             <div className="text-center sm:text-left flex-1">
               <h1 className="text-2xl font-bold text-gray-900">{user.full_name}</h1>
@@ -96,31 +75,7 @@ export default function ProfilePage() {
                 )}
               </div>
             </div>
-            <Button
-              variant={isEditing ? 'outline' : 'default'}
-              onClick={() => {
-                if (isEditing) {
-                  setFormData({
-                    full_name: user.full_name,
-                    phone_number: user.phone_number || '',
-                    home_address: user.home_address || '',
-                  });
-                }
-                setIsEditing(!isEditing);
-              }}
-            >
-              {isEditing ? (
-                <>
-                  <X className="w-4 h-4 mr-2" />
-                  Cancel
-                </>
-              ) : (
-                <>
-                  <Edit className="w-4 h-4 mr-2" />
-                  Edit Profile
-                </>
-              )}
-            </Button>
+            {/* Profile is read-only - no edit button */}
           </div>
         </CardContent>
       </Card>
@@ -137,15 +92,7 @@ export default function ProfilePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="text-sm text-gray-500">Full Name</label>
-              {isEditing ? (
-                <Input
-                  value={formData.full_name}
-                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                  className="mt-1"
-                />
-              ) : (
-                <p className="font-medium">{user.full_name}</p>
-              )}
+              <p className="font-medium">{user.full_name}</p>
             </div>
             <div>
               <label className="text-sm text-gray-500">Email</label>
@@ -153,15 +100,7 @@ export default function ProfilePage() {
             </div>
             <div>
               <label className="text-sm text-gray-500">Phone</label>
-              {isEditing ? (
-                <Input
-                  value={formData.phone_number}
-                  onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
-                  className="mt-1"
-                />
-              ) : (
-                <p className="font-medium">{user.phone_number || 'Not provided'}</p>
-              )}
+              <p className="font-medium">{user.phone_number || 'N/A'}</p>
             </div>
             <div>
               <label className="text-sm text-gray-500">Gender</label>
@@ -179,29 +118,9 @@ export default function ProfilePage() {
             </div>
             <div className="md:col-span-2">
               <label className="text-sm text-gray-500">Address</label>
-              {isEditing ? (
-                <Input
-                  value={formData.home_address}
-                  onChange={(e) => setFormData({ ...formData, home_address: e.target.value })}
-                  className="mt-1"
-                />
-              ) : (
-                <p className="font-medium">{user.home_address || 'Not provided'}</p>
-              )}
+              <p className="font-medium">{user.home_address || 'N/A'}</p>
             </div>
           </div>
-          {isEditing && (
-            <div className="mt-6 flex justify-end">
-              <Button onClick={handleSave} disabled={isSaving}>
-                {isSaving ? (
-                  <LoadingSpinner size="sm" className="mr-2" />
-                ) : (
-                  <Save className="w-4 h-4 mr-2" />
-                )}
-                Save Changes
-              </Button>
-            </div>
-          )}
         </CardContent>
       </Card>
 
