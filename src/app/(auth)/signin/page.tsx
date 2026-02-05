@@ -47,6 +47,17 @@ export default function SignInPage() {
     setIsLoading(true);
     
     try {
+      // Check if user is online
+      if (!navigator.onLine) {
+        toast({ 
+          title: 'No Internet Connection', 
+          description: 'Please check your internet connection and try again.',
+          variant: 'destructive' 
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const result = await login(email, password);
       
       if (result.success) {
@@ -63,12 +74,27 @@ export default function SignInPage() {
           variant: 'destructive' 
         });
       }
-    } catch (error) {
-      toast({ 
-        title: 'Network error', 
-        description: 'Please check your connection',
-        variant: 'destructive' 
-      });
+    } catch (error: any) {
+      // Differentiate between network errors and other errors
+      const isNetworkError = 
+        error.message?.includes('fetch') ||
+        error.message?.includes('network') ||
+        error.message?.includes('Failed to fetch') ||
+        !navigator.onLine;
+
+      if (isNetworkError) {
+        toast({ 
+          title: 'Connection Error', 
+          description: 'Unable to reach the server. Please check your internet connection and try again.',
+          variant: 'destructive' 
+        });
+      } else {
+        toast({ 
+          title: 'Login Error', 
+          description: error.message || 'An unexpected error occurred. Please try again.',
+          variant: 'destructive' 
+        });
+      }
     } finally {
       setIsLoading(false);
     }
