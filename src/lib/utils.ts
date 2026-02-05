@@ -50,8 +50,8 @@ export function getDashboardRoute(roleName: string): string {
 }
 
 export function getRoleCategory(roleName: string): 'senior_admin' | 'admin' | 'general' {
-  const seniorRoles = ['CEO', 'COO', 'HR', 'Human Resource', 'Chairman', 'Auditor', 'Group Head'];
-  const adminRoles = ['Branch Manager', 'Operations Manager', 'Floor Manager'];
+  const seniorRoles = ['CEO', 'COO', 'HR', 'Human Resource', 'Chairman', 'Auditor', 'Group Head', 'Hospitality Unit'];
+  const adminRoles = ['Branch Manager', 'Operations Manager', 'Floor Manager', 'Social Media Manager'];
   
   if (seniorRoles.some(role => roleName.includes(role))) {
     return 'senior_admin';
