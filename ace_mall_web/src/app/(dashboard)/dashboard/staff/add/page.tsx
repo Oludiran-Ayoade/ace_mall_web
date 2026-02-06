@@ -374,6 +374,7 @@ export default function AddStaffPage() {
         phone: formData.phone_number || undefined,
         gender: formData.gender || undefined,
         date_of_birth: formData.date_of_birth || undefined,
+        date_joined: formData.date_joined || undefined,
         home_address: formData.home_address || undefined,
         state_of_origin: formData.state_of_origin || undefined,
         marital_status: formData.marital_status || undefined,

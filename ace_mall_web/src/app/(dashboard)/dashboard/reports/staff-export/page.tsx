@@ -117,7 +117,6 @@ export default function StaffExportPage() {
     try {
       const exportData = staff.map((s) => ({
         'Name': s.full_name,
-        'Employee ID': s.employee_id || 'N/A',
         'Role/Designation': s.role_name,
         'Date Joined': formatDate(s.date_joined),
         'Date of Birth': formatDate(s.date_of_birth),
@@ -128,7 +127,6 @@ export default function StaffExportPage() {
         'Exam Scores': s.exam_scores || 'N/A',
         'Department': s.department_name || 'N/A',
         'Branch': s.branch_name || 'N/A',
-        'Salary': s.current_salary,
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
