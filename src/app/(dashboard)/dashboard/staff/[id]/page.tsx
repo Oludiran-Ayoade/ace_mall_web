@@ -274,14 +274,16 @@ export default function StaffDetailPage() {
                     Upload Documents
                   </Button>
                 </Link>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsTerminateDialogOpen(true)}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-300"
-                >
-                  <UserMinus className="w-4 h-4 mr-2" />
-                  Terminate
-                </Button>
+                {staff.is_active && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsTerminateDialogOpen(true)}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-300"
+                  >
+                    <UserMinus className="w-4 h-4 mr-2" />
+                    Terminate
+                  </Button>
+                )}
               </div>
             )}
           </div>
