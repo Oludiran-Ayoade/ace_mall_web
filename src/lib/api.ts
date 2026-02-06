@@ -222,9 +222,9 @@ class ApiClient {
   }
 
   async getTerminatedStaff(): Promise<TerminatedStaff[]> {
-    const response = await this.request<{ terminated_staff: TerminatedStaff[] } | TerminatedStaff[]>('/hr/terminated-staff');
+    const response = await this.request<{ departed_staff: TerminatedStaff[]; count: number } | TerminatedStaff[]>('/hr/terminated-staff');
     if (Array.isArray(response)) return response;
-    return response.terminated_staff || [];
+    return response.departed_staff || [];
   }
 
   async getAllPromotions(): Promise<PromotionHistory[]> {
