@@ -129,9 +129,12 @@ const navItems: NavItem[] = [
   },
   {
     label: 'Reports',
-    href: '/dashboard/reports',
     icon: <BarChart3 className="w-5 h-5" />,
     roles: ['senior_admin', 'admin'],
+    children: [
+      { label: 'Analytics', href: '/dashboard/reports' },
+      { label: 'Staff Export', href: '/dashboard/reports/staff-export' },
+    ],
   },
   {
     label: 'Messaging',
