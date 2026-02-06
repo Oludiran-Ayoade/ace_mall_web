@@ -233,6 +233,11 @@ class ApiClient {
     return response.promotions || [];
   }
 
+  async getStaffReport(params: Record<string, string>): Promise<{ staff: any[]; count: number }> {
+    const queryString = new URLSearchParams(params).toString();
+    return this.request<{ staff: any[]; count: number }>(`/hr/staff-report?${queryString}`);
+  }
+
   // ============================================
   // ROSTER MANAGEMENT
   // ============================================

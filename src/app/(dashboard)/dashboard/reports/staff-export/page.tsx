@@ -92,7 +92,7 @@ export default function StaffExportPage() {
       if (filterType === 'role' && selectedRole) params.role_id = selectedRole;
       if (filterType === 'gender' && selectedGender) params.gender = selectedGender;
 
-      const response = await api.request<{ staff: StaffReportItem[]; count: number }>('/hr/staff-report?' + new URLSearchParams(params).toString());
+      const response = await api.getStaffReport(params);
       setStaff(response.staff || []);
     } catch (error) {
       console.error('Failed to fetch staff report:', error);
