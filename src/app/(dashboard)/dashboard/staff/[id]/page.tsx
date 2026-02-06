@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { DocumentViewer } from '@/components/shared/DocumentViewer';
+import { TerminateStaffDialog } from '@/components/dialogs/TerminateStaffDialog';
 import { toast } from 'react-toastify';
 import {
   ArrowLeft,
@@ -52,6 +53,8 @@ export default function StaffDetailPage() {
   const [viewingDocument, setViewingDocument] = useState<{ url: string; title: string } | null>(null);
   const [isEditingExamScores, setIsEditingExamScores] = useState(false);
   const [examScoresValue, setExamScoresValue] = useState<string>('');
+  const [isTerminateDialogOpen, setIsTerminateDialogOpen] = useState(false);
+  const [isTerminating, setIsTerminating] = useState(false);
 
   useEffect(() => {
     const fetchStaffData = async () => {
@@ -110,6 +113,27 @@ export default function StaffDetailPage() {
       toast.error('Failed to update role. Please try again.');
     } finally {
       setIsSavingRole(false);
+    }
+  };
+
+  const handleTerminateStaff = async (data: {
+    termination_type: string;
+    reason: string;
+    last_working_day?: string;
+  }) => {
+    setIsTerminating(true);
+    try {
+      await api.terminateStaff(staffId, data);
+      toast.success('Staff terminated successfully');
+      setIsTerminateDialogOpen(false);
+      // Redirect to terminated staff page after a short delay
+      setTimeout(() => {
+        router.push('/dashboard/terminated-staff');
+      }, 1500);
+    } catch (error) {
+      toast.error('Failed to terminate staff. Please try again.');
+    } finally {
+      setIsTerminating(false);
     }
   };
 
@@ -250,6 +274,14 @@ export default function StaffDetailPage() {
                     Upload Documents
                   </Button>
                 </Link>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsTerminateDialogOpen(true)}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-300"
+                >
+                  <UserMinus className="w-4 h-4 mr-2" />
+                  Terminate
+                </Button>
               </div>
             )}
           </div>
@@ -986,6 +1018,15 @@ export default function StaffDetailPage() {
           onClose={() => setViewingDocument(null)}
         />
       )}
+
+      {/* Terminate Staff Dialog */}
+      <TerminateStaffDialog
+        isOpen={isTerminateDialogOpen}
+        onClose={() => setIsTerminateDialogOpen(false)}
+        onConfirm={handleTerminateStaff}
+        staffName={staff?.full_name || ''}
+        isLoading={isTerminating}
+      />
     </div>
   );
 }
