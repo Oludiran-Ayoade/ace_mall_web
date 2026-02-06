@@ -692,7 +692,7 @@ export default function AddStaffPage() {
                 </div>
                 <div>
                   <label className="text-sm text-gray-500">Exam Scores</label>
-                  <Input name="exam_scores" value={formData.exam_scores} onChange={handleChange} placeholder="e.g., WAEC, NECO scores" className="mt-1" />
+                  <Input name="exam_scores" value={formData.exam_scores} onChange={handleChange} placeholder="Enter exam scores" className="mt-1" />
                 </div>
               </div>
             </div>
