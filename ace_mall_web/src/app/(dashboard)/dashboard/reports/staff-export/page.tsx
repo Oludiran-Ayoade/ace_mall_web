@@ -20,7 +20,6 @@ interface StaffReportItem {
   course_of_study: string | null;
   grade: string | null;
   institution: string | null;
-  exam_scores: string | null;
   department_name: string | null;
   branch_name: string | null;
   current_salary: number;
@@ -92,7 +91,11 @@ export default function StaffExportPage() {
       if (filterType === 'role' && selectedRole) params.role_id = selectedRole;
       if (filterType === 'gender' && selectedGender) params.gender = selectedGender;
 
+      console.log('Fetching staff report with params:', params);
       const response = await api.getStaffReport(params);
+      console.log('Staff report response:', response);
+      console.log('Staff array:', response.staff);
+      console.log('Staff count:', response.staff?.length);
       setStaff(response.staff || []);
     } catch (error) {
       console.error('Failed to fetch staff report:', error);
@@ -121,7 +124,6 @@ export default function StaffExportPage() {
         'Course': s.course_of_study || 'N/A',
         'Grade': s.grade || 'N/A',
         'Institution': s.institution || 'N/A',
-        'Exam Score': s.exam_scores || 'N/A',
         'Department': s.department_name || 'N/A',
         'Branch': s.branch_name || 'N/A',
         'Salary': s.current_salary,
