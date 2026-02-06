@@ -92,7 +92,11 @@ export default function StaffExportPage() {
       if (filterType === 'role' && selectedRole) params.role_id = selectedRole;
       if (filterType === 'gender' && selectedGender) params.gender = selectedGender;
 
+      console.log('Fetching staff report with params:', params);
       const response = await api.getStaffReport(params);
+      console.log('Staff report response:', response);
+      console.log('Staff array:', response.staff);
+      console.log('Staff count:', response.staff?.length);
       setStaff(response.staff || []);
     } catch (error) {
       console.error('Failed to fetch staff report:', error);
@@ -258,9 +262,9 @@ export default function StaffExportPage() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
               >
-                <option value="date_joined">Oldest Staff (Date Joined)</option>
+                <option value="date_joined">Date Joined (Oldest First)</option>
                 <option value="name">Name (A-Z)</option>
                 <option value="age">Age (Oldest First)</option>
               </select>
