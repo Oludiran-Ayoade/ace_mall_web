@@ -1,5 +1,16 @@
 /* Mobile Responsive Styles for Ace Mall Web */
 
+/* Desktop/Full screen - ensure welcome card is visible */
+@media (min-width: 769px) {
+  main {
+    padding-top: 4.5rem !important; /* 72px - 64px header + minimal extra space */
+  }
+
+  main > div:first-child {
+    margin-top: 1.5rem; /* Reduced spacing for better layout */
+  }
+}
+
 /* Base mobile styles */
 @media (max-width: 768px) {
   /* Ensure the body allows scrolling */
@@ -20,7 +31,7 @@
 
   /* Extra safety: target the first child element (the green card) directly */
   main > div:first-child {
-    margin-top: 3.0rem;
+    margin-top: 3rem;
   }
 
   /* Typography adjustments */

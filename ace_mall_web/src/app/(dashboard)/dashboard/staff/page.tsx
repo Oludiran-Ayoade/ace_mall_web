@@ -64,7 +64,7 @@ export default function StaffListPage() {
     const matchesDepartment = !selectedDepartment || s.department_id === selectedDepartment;
 
     if (activeTab === 'senior') {
-      const seniorRoles = ['CEO', 'COO', 'HR', 'Chairman', 'Auditor', 'Group Head'];
+      const seniorRoles = ['CEO', 'COO', 'HR', 'Human Resource', 'Chairman', 'Auditor', 'Group Head', 'Hospitality Unit'];
       return matchesSearch && seniorRoles.some((role) => s.role_name?.includes(role));
     }
 

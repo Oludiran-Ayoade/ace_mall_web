@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { DocumentViewer } from '@/components/shared/DocumentViewer';
+import { TerminateStaffDialog } from '@/components/dialogs/TerminateStaffDialog';
 import { toast } from 'react-toastify';
 import {
   ArrowLeft,
@@ -50,6 +51,10 @@ export default function StaffDetailPage() {
   const [selectedRoleId, setSelectedRoleId] = useState<string>('');
   const [isSavingRole, setIsSavingRole] = useState(false);
   const [viewingDocument, setViewingDocument] = useState<{ url: string; title: string } | null>(null);
+  const [isEditingExamScores, setIsEditingExamScores] = useState(false);
+  const [examScoresValue, setExamScoresValue] = useState<string>('');
+  const [isTerminateDialogOpen, setIsTerminateDialogOpen] = useState(false);
+  const [isTerminating, setIsTerminating] = useState(false);
 
   useEffect(() => {
     const fetchStaffData = async () => {
@@ -108,6 +113,27 @@ export default function StaffDetailPage() {
       toast.error('Failed to update role. Please try again.');
     } finally {
       setIsSavingRole(false);
+    }
+  };
+
+  const handleTerminateStaff = async (data: {
+    termination_type: string;
+    reason: string;
+    last_working_day?: string;
+  }) => {
+    setIsTerminating(true);
+    try {
+      await api.terminateStaff(staffId, data);
+      toast.success('Staff terminated successfully');
+      setIsTerminateDialogOpen(false);
+      // Redirect to terminated staff page after a short delay
+      setTimeout(() => {
+        router.push('/dashboard/terminated-staff');
+      }, 1500);
+    } catch (error) {
+      toast.error('Failed to terminate staff. Please try again.');
+    } finally {
+      setIsTerminating(false);
     }
   };
 
@@ -248,6 +274,16 @@ export default function StaffDetailPage() {
                     Upload Documents
                   </Button>
                 </Link>
+                {staff.is_active && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsTerminateDialogOpen(true)}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-300"
+                  >
+                    <UserMinus className="w-4 h-4 mr-2" />
+                    Terminate
+                  </Button>
+                )}
               </div>
             )}
           </div>
@@ -387,12 +423,73 @@ export default function StaffDetailPage() {
               )}
             </div>
             {permissionLevel === 'view_full' && (
-              <div>
-                <p className="text-sm text-gray-500">Salary</p>
-                <p className="font-medium text-primary">
-                  {staff.current_salary ? formatCurrency(staff.current_salary) : 'Not disclosed'}
-                </p>
-              </div>
+              <>
+                <div>
+                  <p className="text-sm text-gray-500">Salary</p>
+                  <p className="font-medium text-primary">
+                    {staff.current_salary ? formatCurrency(staff.current_salary) : 'Not disclosed'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-2">Exam Scores</p>
+                  {isEditingExamScores ? (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="text"
+                        value={examScoresValue}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setExamScoresValue(e.target.value)}
+                        className="flex-1 sm:max-w-[400px] h-12 px-4 text-base font-medium border border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all bg-purple-50/50"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={async () => {
+                          try {
+                            await api.updateStaffProfile(staffId, { exam_scores: examScoresValue } as any);
+                            setStaff({ 
+                              ...staff, 
+                              exam_scores: examScoresValue ? [{ exam_type: 'General', score: examScoresValue }] : [] 
+                            });
+                            setIsEditingExamScores(false);
+                            toast.success('Exam scores updated successfully!');
+                          } catch (error) {
+                            toast.error('Failed to update exam scores');
+                          }
+                        }}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setIsEditingExamScores(false);
+                          setExamScoresValue(staff.exam_scores && staff.exam_scores.length > 0 ? staff.exam_scores[0].score : '');
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-gray-900">
+                        {staff.exam_scores && staff.exam_scores.length > 0 ? staff.exam_scores[0].score : 'Not provided'}
+                      </p>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setExamScoresValue(staff.exam_scores && staff.exam_scores.length > 0 ? staff.exam_scores[0].score : '');
+                          setIsEditingExamScores(true);
+                        }}
+                        className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
         </CardContent>
@@ -923,6 +1020,15 @@ export default function StaffDetailPage() {
           onClose={() => setViewingDocument(null)}
         />
       )}
+
+      {/* Terminate Staff Dialog */}
+      <TerminateStaffDialog
+        isOpen={isTerminateDialogOpen}
+        onClose={() => setIsTerminateDialogOpen(false)}
+        onConfirm={handleTerminateStaff}
+        staffName={staff?.full_name || ''}
+        isLoading={isTerminating}
+      />
     </div>
   );
 }

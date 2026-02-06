@@ -461,6 +461,8 @@ class _BranchDepartmentsPageState extends State<BranchDepartmentsPage> {
 
   Color _getDepartmentColor(String name) {
     switch (name.toLowerCase()) {
+      case 'senior staffs':
+        return Colors.red;
       case 'supermarket':
         return Colors.blue;
       case 'lounge':
@@ -473,6 +475,10 @@ class _BranchDepartmentsPageState extends State<BranchDepartmentsPage> {
         return Colors.pink;
       case 'bakery':
         return Colors.brown;
+      case 'marketing':
+        return Colors.green;
+      case 'other staffs':
+        return Colors.indigo;
       default:
         return Colors.grey;
     }
@@ -480,6 +486,8 @@ class _BranchDepartmentsPageState extends State<BranchDepartmentsPage> {
 
   IconData _getDepartmentIcon(String name) {
     switch (name.toLowerCase()) {
+      case 'senior staffs':
+        return Icons.workspace_premium;
       case 'supermarket':
         return Icons.shopping_cart;
       case 'lounge':
@@ -489,9 +497,13 @@ class _BranchDepartmentsPageState extends State<BranchDepartmentsPage> {
       case 'facility management':
         return Icons.build;
       case 'fun & arcade':
-        return Icons.sports_esports;
+        return Icons.videogame_asset;
       case 'bakery':
         return Icons.cake;
+      case 'marketing':
+        return Icons.campaign;
+      case 'other staffs':
+        return Icons.people_outline;
       default:
         return Icons.business;
     }

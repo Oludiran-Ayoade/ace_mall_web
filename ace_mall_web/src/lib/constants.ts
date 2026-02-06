@@ -17,7 +17,7 @@ export const BRANCHES = [
 ];
 
 export const DEPARTMENTS = [
-  'SuperMarket', 'Eatery', 'Lounge', 'Fun & Arcade', 'Compliance', 'Facility Management'
+  'Senior Staffs', 'SuperMarket', 'Eatery', 'Lounge', 'Fun & Arcade', 'Compliance', 'Facility Management', 'Marketing', 'Other Staffs'
 ];
 
 export const SUB_DEPARTMENTS = [

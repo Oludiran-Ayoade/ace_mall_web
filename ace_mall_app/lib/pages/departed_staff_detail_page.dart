@@ -230,7 +230,9 @@ class DepartedStaffDetailPage extends StatelessWidget {
                   _buildDetailRow(
                     Icons.event_busy,
                     'Departure Date',
-                    staff['termination_date'] ?? 'N/A',
+                    staff['termination_date'] != null 
+                        ? DateFormat('MMMM dd, yyyy').format(DateTime.parse(staff['termination_date']))
+                        : 'N/A',
                     isHighlighted: true,
                     highlightColor: terminationColor,
                   ),

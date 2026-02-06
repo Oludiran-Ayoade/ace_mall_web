@@ -26,6 +26,7 @@ class _ViewProfilePageState extends State<ViewProfilePage> with TickerProviderSt
   List<Map<String, dynamic>> _workExperiences = [];
   bool _isLoading = true;
   bool _isEditing = false;
+  String? _editingField;
   bool _isHR = false;
   bool _isGeneralStaff = false;
   bool _isViewingOwnProfile = false;
@@ -280,6 +281,12 @@ class _ViewProfilePageState extends State<ViewProfilePage> with TickerProviderSt
     _controllers['grade'] = TextEditingController(text: _staffData!['grade'] ?? '');
     _controllers['institution'] = TextEditingController(text: _staffData!['institution'] ?? '');
     
+    // Exam Scores
+    String examScoresText = '';
+    if (_staffData!['exam_scores'] != null && (_staffData!['exam_scores'] as List).isNotEmpty) {
+      examScoresText = ((_staffData!['exam_scores'] as List)[0] as Map<String, dynamic>)['score'] ?? '';
+    }
+    _controllers['exam_scores'] = TextEditingController(text: examScoresText);
     
     // Next of Kin
     _controllers['nok_name'] = TextEditingController(text: _staffData!['next_of_kin_name'] ?? '');
@@ -312,52 +319,56 @@ class _ViewProfilePageState extends State<ViewProfilePage> with TickerProviderSt
     try {
       setState(() => _isLoading = true);
       
+      // Helper function to convert empty strings to null
+      String? nullIfEmpty(String value) => value.trim().isEmpty ? null : value.trim();
+      
       final updates = {
         // Basic Info
         'full_name': _controllers['full_name']!.text,
-        'email': _controllers['email']!.text,
-        'phone_number': _controllers['phone']!.text,
-        'employee_id': _controllers['employee_id']!.text,
-        'home_address': _controllers['address']!.text,
-        'gender': _controllers['gender']!.text,
-        'marital_status': _controllers['marital_status']!.text,
-        'state_of_origin': _controllers['state_of_origin']!.text,
-        'date_of_birth': _controllers['date_of_birth']!.text,
+        'email': nullIfEmpty(_controllers['email']!.text),
+        'phone_number': nullIfEmpty(_controllers['phone']!.text),
+        'employee_id': nullIfEmpty(_controllers['employee_id']!.text),
+        'home_address': nullIfEmpty(_controllers['address']!.text),
+        'gender': nullIfEmpty(_controllers['gender']!.text),
+        'marital_status': nullIfEmpty(_controllers['marital_status']!.text),
+        'state_of_origin': nullIfEmpty(_controllers['state_of_origin']!.text),
+        'date_of_birth': nullIfEmpty(_controllers['date_of_birth']!.text),
         'current_salary': double.tryParse(_controllers['salary']!.text) ?? 0,
         
         // Education
-        'course_of_study': _controllers['course_of_study']!.text,
-        'grade': _controllers['grade']!.text,
-        'institution': _controllers['institution']!.text,
+        'course_of_study': nullIfEmpty(_controllers['course_of_study']!.text),
+        'grade': nullIfEmpty(_controllers['grade']!.text),
+        'institution': nullIfEmpty(_controllers['institution']!.text),
+        'exam_scores': nullIfEmpty(_controllers['exam_scores']!.text),
         
         // Next of Kin
         'next_of_kin': {
-          'full_name': _controllers['nok_name']!.text,
-          'relationship': _controllers['nok_relationship']!.text,
-          'phone': _controllers['nok_phone']!.text,
-          'email': _controllers['nok_email']!.text,
-          'home_address': _controllers['nok_home_address']!.text,
-          'work_address': _controllers['nok_work_address']!.text,
+          'full_name': nullIfEmpty(_controllers['nok_name']!.text),
+          'relationship': nullIfEmpty(_controllers['nok_relationship']!.text),
+          'phone': nullIfEmpty(_controllers['nok_phone']!.text),
+          'email': nullIfEmpty(_controllers['nok_email']!.text),
+          'home_address': nullIfEmpty(_controllers['nok_home_address']!.text),
+          'work_address': nullIfEmpty(_controllers['nok_work_address']!.text),
         },
         
         // Guarantor 1
         'guarantor_1': {
-          'full_name': _controllers['g1_name']!.text,
-          'phone': _controllers['g1_phone']!.text,
-          'occupation': _controllers['g1_occupation']!.text,
-          'relationship': _controllers['g1_relationship']!.text,
-          'home_address': _controllers['g1_address']!.text,
-          'email': _controllers['g1_email']!.text,
+          'full_name': nullIfEmpty(_controllers['g1_name']!.text),
+          'phone': nullIfEmpty(_controllers['g1_phone']!.text),
+          'occupation': nullIfEmpty(_controllers['g1_occupation']!.text),
+          'relationship': nullIfEmpty(_controllers['g1_relationship']!.text),
+          'home_address': nullIfEmpty(_controllers['g1_address']!.text),
+          'email': nullIfEmpty(_controllers['g1_email']!.text),
         },
         
         // Guarantor 2
         'guarantor_2': {
-          'full_name': _controllers['g2_name']!.text,
-          'phone': _controllers['g2_phone']!.text,
-          'occupation': _controllers['g2_occupation']!.text,
-          'relationship': _controllers['g2_relationship']!.text,
-          'home_address': _controllers['g2_address']!.text,
-          'email': _controllers['g2_email']!.text,
+          'full_name': nullIfEmpty(_controllers['g2_name']!.text),
+          'phone': nullIfEmpty(_controllers['g2_phone']!.text),
+          'occupation': nullIfEmpty(_controllers['g2_occupation']!.text),
+          'relationship': nullIfEmpty(_controllers['g2_relationship']!.text),
+          'home_address': nullIfEmpty(_controllers['g2_address']!.text),
+          'email': nullIfEmpty(_controllers['g2_email']!.text),
         },
       };
       
@@ -380,11 +391,12 @@ class _ViewProfilePageState extends State<ViewProfilePage> with TickerProviderSt
         _loadData();
       }
     } catch (e) {
+      print('❌ Profile update error: $e');
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update profile: $e'),
+            content: Text('Failed to update profile: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -979,6 +991,8 @@ class _ViewProfilePageState extends State<ViewProfilePage> with TickerProviderSt
             _buildEditableInfoRow('Employee ID', 'employee_id'),
             _buildInfoRow('Date Joined', _formatDate(_staffData!['date_joined'])),
             _buildSalaryRow('Salary', _staffData!['current_salary'] ?? _staffData!['salary']),
+            if (_isHR)
+              _buildEditableInfoRowWithSave('Exam Scores', 'exam_scores'),
           ],
         ),
         const SizedBox(height: 12),
@@ -2226,6 +2240,146 @@ class _ViewProfilePageState extends State<ViewProfilePage> with TickerProviderSt
                       color: const Color(0xFF1A1A1A),
                     ),
                     textAlign: TextAlign.right,
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Special editable row with save button for exam scores
+  Widget _buildEditableInfoRowWithSave(String label, String controllerKey) {
+    final controller = _controllers[controllerKey];
+    if (controller == null) return _buildInfoRow(label, 'N/A');
+
+    // Track if this specific field is being edited
+    final isEditingThisField = _isEditing && _editingField == controllerKey;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Colors.grey[100]!, width: 1),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF616161),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 3,
+            child: isEditingThisField
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      TextField(
+                        controller: controller,
+                        style: GoogleFonts.inter(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF1A1A1A),
+                        ),
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(color: Color(0xFFCE93D8)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(color: Color(0xFFCE93D8), width: 2),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _isEditing = false;
+                                _editingField = null;
+                                // Reset to original value
+                                _initializeControllers();
+                              });
+                            },
+                            child: Text(
+                              'Cancel',
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: () async {
+                              await _saveChanges();
+                              setState(() {
+                                _isEditing = false;
+                                _editingField = null;
+                              });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF4CAF50),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            ),
+                            child: Text(
+                              'Save',
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          controller.text.isEmpty ? 'Not provided' : controller.text,
+                          style: GoogleFonts.inter(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF1A1A1A),
+                          ),
+                          textAlign: TextAlign.right,
+                        ),
+                      ),
+                      if (_isHR) ...[
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: const Icon(Icons.edit, size: 20, color: Color(0xFF4CAF50)),
+                          onPressed: () {
+                            setState(() {
+                              _isEditing = true;
+                              _editingField = controllerKey;
+                            });
+                          },
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    ],
                   ),
           ),
         ],
