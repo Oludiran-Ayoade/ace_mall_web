@@ -20,6 +20,7 @@ interface StaffReportItem {
   course_of_study: string | null;
   grade: string | null;
   institution: string | null;
+  exam_scores: string | null;
   department_name: string | null;
   branch_name: string | null;
   current_salary: number;
@@ -124,6 +125,7 @@ export default function StaffExportPage() {
         'Course': s.course_of_study || 'N/A',
         'Grade': s.grade || 'N/A',
         'Institution': s.institution || 'N/A',
+        'Exam Scores': s.exam_scores || 'N/A',
         'Department': s.department_name || 'N/A',
         'Branch': s.branch_name || 'N/A',
         'Salary': s.current_salary,
