@@ -104,24 +104,29 @@ class _StaffDetailPageState extends State<StaffDetailPage> with SingleTickerProv
 
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+    final bool isSmallScreen = screenHeight < 700;
     
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          contentPadding: const EdgeInsets.all(20),
+          contentPadding: EdgeInsets.all(isSmallScreen ? 16 : 20),
           insetPadding: EdgeInsets.symmetric(
-            horizontal: screenWidth > 600 ? 40 : 16,
-            vertical: screenHeight > 700 ? 24 : 16,
+            horizontal: screenWidth > 600 ? 40 : 12,
+            vertical: isSmallScreen ? 12 : 24,
           ),
           title: Text(
             'Terminate Staff',
-            style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.red[700], fontSize: 18),
+            style: GoogleFonts.inter(
+              fontWeight: FontWeight.bold, 
+              color: Colors.red[700], 
+              fontSize: isSmallScreen ? 16 : 18,
+            ),
           ),
           content: ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: screenWidth > 600 ? 500 : screenWidth * 0.9,
-              maxHeight: screenHeight * 0.6, // Limit height to 60% of screen
+              maxHeight: isSmallScreen ? screenHeight * 0.5 : screenHeight * 0.55,
             ),
             child: SingleChildScrollView(
               child: Column(
@@ -129,17 +134,28 @@ class _StaffDetailPageState extends State<StaffDetailPage> with SingleTickerProv
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Staff: ${widget.staff['full_name']}',
-                    style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 14),
+                    widget.staff['full_name'] ?? '',
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w600, 
+                      fontSize: isSmallScreen ? 13 : 14,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: isSmallScreen ? 10 : 12),
                   DropdownButtonFormField<String>(
                     value: selectedType,
                     decoration: InputDecoration(
-                      labelText: 'Termination Type',
+                      labelText: 'Type',
+                      labelStyle: TextStyle(fontSize: isSmallScreen ? 12 : 14),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 10, 
+                        vertical: isSmallScreen ? 8 : 10,
+                      ),
+                      isDense: true,
                     ),
+                    style: TextStyle(fontSize: isSmallScreen ? 13 : 14),
                     items: const [
                       DropdownMenuItem(value: 'terminated', child: Text('Terminated')),
                       DropdownMenuItem(value: 'resigned', child: Text('Resigned')),
@@ -154,17 +170,23 @@ class _StaffDetailPageState extends State<StaffDetailPage> with SingleTickerProv
                       }
                     },
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: isSmallScreen ? 8 : 10),
                   TextField(
                     controller: reasonController,
                     decoration: InputDecoration(
-                      labelText: 'Reason for Departure *',
+                      labelText: 'Reason *',
+                      labelStyle: TextStyle(fontSize: isSmallScreen ? 12 : 14),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 10, 
+                        vertical: isSmallScreen ? 8 : 10,
+                      ),
+                      isDense: true,
                     ),
-                    maxLines: 3,
+                    style: TextStyle(fontSize: isSmallScreen ? 13 : 14),
+                    maxLines: isSmallScreen ? 2 : 3,
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: isSmallScreen ? 8 : 10),
                   InkWell(
                     onTap: () async {
                       final DateTime? picked = await showDatePicker(
@@ -192,31 +214,34 @@ class _StaffDetailPageState extends State<StaffDetailPage> with SingleTickerProv
                       }
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10, 
+                        vertical: isSmallScreen ? 8 : 10,
+                      ),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey[400]!),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.calendar_today, color: Colors.grey[600], size: 18),
-                          const SizedBox(width: 10),
+                          Icon(Icons.calendar_today, color: Colors.grey[600], size: 16),
+                          const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               selectedDate == null
-                                  ? 'Select Last Working Day'
+                                  ? 'Last Working Day'
                                   : DateFormat('yyyy-MM-dd').format(selectedDate!),
                               style: GoogleFonts.inter(
-                                fontSize: 14,
+                                fontSize: isSmallScreen ? 12 : 13,
                                 color: selectedDate == null ? Colors.grey[600] : Colors.black87,
                               ),
                             ),
                           ),
                           if (selectedDate != null)
                             IconButton(
-                              icon: const Icon(Icons.clear, size: 18),
+                              icon: const Icon(Icons.clear, size: 16),
                               padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
+                              constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                               onPressed: () {
                                 setState(() {
                                   selectedDate = null;
