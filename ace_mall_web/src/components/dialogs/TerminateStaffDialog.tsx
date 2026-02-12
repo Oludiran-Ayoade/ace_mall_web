@@ -44,17 +44,17 @@ export function TerminateStaffDialog({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-              <UserMinus className="w-5 h-5 text-red-600" />
+        <div className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+              <UserMinus className="w-4 h-4 text-red-600" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Terminate Staff</h2>
-              <p className="text-sm text-gray-500">{staffName}</p>
+              <h2 className="text-base font-semibold text-gray-900">Terminate Staff</h2>
+              <p className="text-xs text-gray-500 truncate max-w-[200px]">{staffName}</p>
             </div>
           </div>
           <button
@@ -62,25 +62,25 @@ export function TerminateStaffDialog({
             className="text-gray-400 hover:text-gray-600"
             disabled={isLoading}
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-6 space-y-4">
+        <div className="p-4 space-y-3">
           {/* Termination Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Termination Type <span className="text-red-500">*</span>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Type <span className="text-red-500">*</span>
             </label>
             <select
               value={terminationType}
               onChange={(e) => setTerminationType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
               disabled={isLoading}
             >
-              <option value="terminated">Terminated (Fired)</option>
-              <option value="resigned">Resigned (Staff Left)</option>
+              <option value="terminated">Terminated</option>
+              <option value="resigned">Resigned</option>
               <option value="retired">Retired</option>
               <option value="contract_ended">Contract Ended</option>
             </select>
@@ -88,70 +88,57 @@ export function TerminateStaffDialog({
 
           {/* Reason */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-xs font-medium text-gray-700 mb-1">
               Reason <span className="text-red-500">*</span>
             </label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder={
-                terminationType === 'terminated'
-                  ? 'e.g., Poor performance, misconduct, policy violation...'
-                  : terminationType === 'resigned'
-                  ? 'e.g., Better opportunity, personal reasons, relocation...'
-                  : 'Enter reason...'
-              }
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+              placeholder="Enter termination reason..."
+              rows={2}
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
               disabled={isLoading}
             />
-            <p className="mt-1 text-xs text-gray-500">
-              This will be stored on the staff's profile
-            </p>
           </div>
 
           {/* Last Working Day */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Last Working Day (Optional)
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Last Working Day
             </label>
             <Input
               type="date"
               value={lastWorkingDay}
               onChange={(e) => setLastWorkingDay(e.target.value)}
               disabled={isLoading}
+              className="text-sm h-8"
             />
           </div>
 
           {/* Warning */}
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm text-red-800">
-              <strong>⚠️ Warning:</strong> This action will:
+          <div className="bg-red-50 border border-red-200 rounded-lg p-2">
+            <p className="text-xs text-red-800 font-medium">
+              ⚠️ This will deactivate the account
             </p>
-            <ul className="mt-2 text-sm text-red-700 list-disc list-inside space-y-1">
-              <li>Deactivate the staff's account</li>
-              <li>Prevent them from logging in</li>
-              <li>Move them to "Terminated Staff" section</li>
-              <li>Record the termination reason</li>
-            </ul>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 p-6 border-t bg-gray-50">
+        <div className="flex items-center justify-end gap-2 p-4 border-t bg-gray-50">
           <Button
             variant="outline"
             onClick={onClose}
             disabled={isLoading}
+            className="text-sm h-8 px-3"
           >
             Cancel
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={isLoading || !reason.trim()}
-            className="bg-red-600 hover:bg-red-700"
+            className="bg-red-600 hover:bg-red-700 text-sm h-8 px-3"
           >
-            {isLoading ? 'Processing...' : 'Terminate Staff'}
+            {isLoading ? 'Processing...' : 'Terminate'}
           </Button>
         </div>
       </div>
