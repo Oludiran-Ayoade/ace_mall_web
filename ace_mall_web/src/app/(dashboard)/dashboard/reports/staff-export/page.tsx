@@ -111,7 +111,7 @@ export default function StaffExportPage() {
       console.log('Staff report response:', response);
       
       // Handle different response structures
-      const staffData = response.staff || response.data || response || [];
+      const staffData = response.staff || [];
       console.log('Staff array:', staffData);
       console.log('Staff count:', staffData?.length);
       setStaff(Array.isArray(staffData) ? staffData : []);
