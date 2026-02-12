@@ -17,7 +17,6 @@ class _BranchManagerDashboardPageState extends State<BranchManagerDashboardPage>
   int _onDutyStaff = 0;
   bool _isLoading = true;
   String _branchName = 'Branch Manager';
-  String? _branchId;
 
   @override
   void initState() {
@@ -44,7 +43,7 @@ class _BranchManagerDashboardPageState extends State<BranchManagerDashboardPage>
         return;
       }
 
-      _branchId = branchId;
+      // Branch ID stored in userData, used for filtering
 
       // Get branch name
       if (branchId != null) {
@@ -60,6 +59,7 @@ class _BranchManagerDashboardPageState extends State<BranchManagerDashboardPage>
             });
           }
         } catch (e) {
+          // Branch name fetch failed, use default
         }
       }
 
@@ -172,9 +172,8 @@ class _BranchManagerDashboardPageState extends State<BranchManagerDashboardPage>
                 Navigator.pushNamed(context, '/profile');
               } else if (value == 'logout') {
                 await _apiService.logout();
-                if (mounted) {
-                  Navigator.of(context).pushReplacementNamed('/signin');
-                }
+                if (!mounted) return;
+                Navigator.of(context).pushReplacementNamed('/signin');
               }
             },
             itemBuilder: (BuildContext context) => [
