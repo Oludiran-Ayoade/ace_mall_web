@@ -82,22 +82,39 @@ export default function StaffExportPage() {
   const loadStaffReport = async () => {
     setIsLoading(true);
     try {
-      const params: Record<string, string> = {
-        filter_type: filterType,
-        sort_by: sortBy,
-      };
+      const params: Record<string, string> = {};
 
-      if (filterType === 'branch' && selectedBranch) params.branch_id = selectedBranch;
-      if (filterType === 'department' && selectedDepartment) params.department_id = selectedDepartment;
-      if (filterType === 'role' && selectedRole) params.role_id = selectedRole;
-      if (filterType === 'gender' && selectedGender) params.gender = selectedGender;
+      // Always include filter_type
+      params.filter_type = filterType;
+
+      // Add specific filter parameters based on filter type
+      if (filterType === 'branch' && selectedBranch) {
+        params.branch_id = selectedBranch;
+      }
+      if (filterType === 'department' && selectedDepartment) {
+        params.department_id = selectedDepartment;
+      }
+      if (filterType === 'role' && selectedRole) {
+        params.role_id = selectedRole;
+      }
+      if (filterType === 'gender' && selectedGender) {
+        params.gender = selectedGender;
+      }
+
+      // Always include sort_by parameter
+      if (sortBy) {
+        params.sort_by = sortBy;
+      }
 
       console.log('Fetching staff report with params:', params);
       const response = await api.getStaffReport(params);
       console.log('Staff report response:', response);
-      console.log('Staff array:', response.staff);
-      console.log('Staff count:', response.staff?.length);
-      setStaff(response.staff || []);
+      
+      // Handle different response structures
+      const staffData = response.staff || response.data || response || [];
+      console.log('Staff array:', staffData);
+      console.log('Staff count:', staffData?.length);
+      setStaff(Array.isArray(staffData) ? staffData : []);
     } catch (error) {
       console.error('Failed to fetch staff report:', error);
       setStaff([]);

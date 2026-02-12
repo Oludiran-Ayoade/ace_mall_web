@@ -102,17 +102,27 @@ class _StaffDetailPageState extends State<StaffDetailPage> with SingleTickerProv
     DateTime? selectedDate;
     String selectedType = 'terminated';
 
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          contentPadding: const EdgeInsets.all(24),
+          contentPadding: const EdgeInsets.all(20),
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: screenWidth > 600 ? 40 : 16,
+            vertical: screenHeight > 700 ? 24 : 16,
+          ),
           title: Text(
             'Terminate Staff',
-            style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.red[700]),
+            style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.red[700], fontSize: 18),
           ),
-          content: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.85, // Make it wider
+          content: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: screenWidth > 600 ? 500 : screenWidth * 0.9,
+              maxHeight: screenHeight * 0.6, // Limit height to 60% of screen
+            ),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -120,15 +130,15 @@ class _StaffDetailPageState extends State<StaffDetailPage> with SingleTickerProv
                 children: [
                   Text(
                     'Staff: ${widget.staff['full_name']}',
-                    style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15),
+                    style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 14),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: selectedType,
                     decoration: InputDecoration(
                       labelText: 'Termination Type',
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     ),
                     items: const [
                       DropdownMenuItem(value: 'terminated', child: Text('Terminated')),
@@ -144,18 +154,17 @@ class _StaffDetailPageState extends State<StaffDetailPage> with SingleTickerProv
                       }
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   TextField(
                     controller: reasonController,
                     decoration: InputDecoration(
                       labelText: 'Reason for Departure *',
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     ),
-                    maxLines: 4,
+                    maxLines: 3,
                   ),
-                  const SizedBox(height: 16),
-                  // Calendar Picker
+                  const SizedBox(height: 12),
                   InkWell(
                     onTap: () async {
                       final DateTime? picked = await showDatePicker(
@@ -183,29 +192,31 @@ class _StaffDetailPageState extends State<StaffDetailPage> with SingleTickerProv
                       }
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey[400]!),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.calendar_today, color: Colors.grey[600], size: 20),
-                          const SizedBox(width: 12),
+                          Icon(Icons.calendar_today, color: Colors.grey[600], size: 18),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               selectedDate == null
                                   ? 'Select Last Working Day'
                                   : DateFormat('yyyy-MM-dd').format(selectedDate!),
                               style: GoogleFonts.inter(
-                                fontSize: 15,
+                                fontSize: 14,
                                 color: selectedDate == null ? Colors.grey[600] : Colors.black87,
                               ),
                             ),
                           ),
                           if (selectedDate != null)
                             IconButton(
-                              icon: const Icon(Icons.clear, size: 20),
+                              icon: const Icon(Icons.clear, size: 18),
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
                               onPressed: () {
                                 setState(() {
                                   selectedDate = null;
@@ -223,13 +234,13 @@ class _StaffDetailPageState extends State<StaffDetailPage> with SingleTickerProv
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: GoogleFonts.inter(fontSize: 15)),
+              child: Text('Cancel', style: GoogleFonts.inter(fontSize: 14)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red[700],
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
               onPressed: () async {
                 if (reasonController.text.isEmpty) {
@@ -241,7 +252,6 @@ class _StaffDetailPageState extends State<StaffDetailPage> with SingleTickerProv
 
                 Navigator.pop(context);
 
-                // Show loading
                 showDialog(
                   context: context,
                   barrierDismissible: false,
@@ -257,19 +267,18 @@ class _StaffDetailPageState extends State<StaffDetailPage> with SingleTickerProv
                   );
 
                   if (mounted) {
-                    Navigator.pop(context); // Close loading
+                    Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('${widget.staff['full_name']} has been terminated'),
                         backgroundColor: Colors.green,
                       ),
                     );
-                    // Pop back with refresh flag
                     Navigator.pop(context, true);
                   }
                 } catch (e) {
                   if (mounted) {
-                    Navigator.pop(context); // Close loading
+                    Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Failed to terminate staff: $e'),
@@ -279,7 +288,7 @@ class _StaffDetailPageState extends State<StaffDetailPage> with SingleTickerProv
                   }
                 }
               },
-              child: Text('Terminate', style: GoogleFonts.inter(fontSize: 15)),
+              child: Text('Terminate', style: GoogleFonts.inter(fontSize: 14)),
             ),
           ],
         ),
