@@ -24,15 +24,19 @@ interface RosterHistoryItem {
   id: string;
   week_start_date: string;
   week_end_date: string;
-  branch_name: string;
-  branch_id: string;
-  department_name: string;
-  department_id: string;
-  floor_manager_name: string;
-  staff_count: number;
-  present_count: number;
-  absent_count: number;
-  pending_count: number;
+  branch_name?: string;
+  branch_id?: string;
+  department_name?: string;
+  department_id?: string;
+  floor_manager?: string;
+  floor_manager_name?: string;
+  staff_count?: number;
+  assignment_count?: number;
+  present_count?: number;
+  absent_count?: number;
+  pending_count?: number;
+  status?: string;
+  created_at?: string;
 }
 
 export default function RosterHistoryPage() {
@@ -68,8 +72,26 @@ export default function RosterHistoryPage() {
       setDepartments(Array.isArray(deptData) ? deptData : []);
 
       // Fetch roster history from backend
-      // For now, set empty array since backend doesn't have this endpoint yet
-      setRosters([]);
+      const filters: any = {
+        year: selectedYear.toString(),
+      };
+      
+      if (selectedMonth !== null) {
+        filters.month = (selectedMonth + 1).toString();
+      }
+      
+      if (selectedBranch !== 'All') {
+        const branch = branchData.find((b: Branch) => b.name === selectedBranch);
+        if (branch) filters.branch_id = branch.id;
+      }
+      
+      if (selectedDepartment !== 'All') {
+        const dept = deptData.find((d: Department) => d.name === selectedDepartment);
+        if (dept) filters.department_id = dept.id;
+      }
+
+      const rosterData = await api.getAllRosters(filters).catch(() => ({ rosters: [] }));
+      setRosters(Array.isArray(rosterData.rosters) ? rosterData.rosters : []);
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {
@@ -82,8 +104,8 @@ export default function RosterHistoryPage() {
     const rosterDate = new Date(roster.week_start_date);
     
     if (selectedMonth !== null && rosterDate.getMonth() !== selectedMonth) return false;
-    if (selectedBranch !== 'All' && roster.branch_name !== selectedBranch) return false;
-    if (selectedDepartment !== 'All' && roster.department_name !== selectedDepartment) return false;
+    if (selectedBranch !== 'All' && roster.branch_name && roster.branch_name !== selectedBranch) return false;
+    if (selectedDepartment !== 'All' && roster.department_name && roster.department_name !== selectedDepartment) return false;
     
     return true;
   });
@@ -216,8 +238,11 @@ export default function RosterHistoryPage() {
       ) : (
         <div className="space-y-3">
           {filteredRosters.map(roster => {
-            const attendanceRate = roster.staff_count > 0 
-              ? Math.round((roster.present_count / roster.staff_count) * 100) 
+            const staffCount = roster.staff_count ?? 0;
+            const presentCount = roster.present_count ?? 0;
+            const absentCount = roster.absent_count ?? 0;
+            const attendanceRate = staffCount > 0 
+              ? Math.round((presentCount / staffCount) * 100) 
               : 0;
 
             return (
@@ -241,15 +266,15 @@ export default function RosterHistoryPage() {
                       <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
                         <span className="flex items-center gap-1">
                           <Building2 className="w-3 h-3" />
-                          {roster.branch_name.replace('Ace Mall, ', '')}
+                          {roster.branch_name?.replace('Ace Mall, ', '') || 'N/A'}
                         </span>
                         <span className="flex items-center gap-1">
                           <Layers className="w-3 h-3" />
-                          {roster.department_name}
+                          {roster.department_name || 'N/A'}
                         </span>
                         <span className="flex items-center gap-1">
                           <Users className="w-3 h-3" />
-                          {roster.floor_manager_name}
+                          {roster.floor_manager_name || roster.floor_manager || 'N/A'}
                         </span>
                       </div>
 
@@ -257,17 +282,17 @@ export default function RosterHistoryPage() {
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1 text-sm">
                           <Users className="w-4 h-4 text-gray-400" />
-                          <span className="font-medium">{roster.staff_count}</span>
+                          <span className="font-medium">{staffCount}</span>
                           <span className="text-gray-500">staff</span>
                         </div>
                         <div className="flex items-center gap-1 text-sm text-green-600">
                           <CheckCircle className="w-4 h-4" />
-                          <span className="font-medium">{roster.present_count}</span>
+                          <span className="font-medium">{presentCount}</span>
                           <span>present</span>
                         </div>
                         <div className="flex items-center gap-1 text-sm text-red-600">
                           <XCircle className="w-4 h-4" />
-                          <span className="font-medium">{roster.absent_count}</span>
+                          <span className="font-medium">{absentCount}</span>
                           <span>absent</span>
                         </div>
                       </div>

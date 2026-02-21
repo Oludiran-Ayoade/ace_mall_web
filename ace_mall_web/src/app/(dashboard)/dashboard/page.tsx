@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { getRoleCategory } from '@/lib/utils';
+import { getRoleCategory, formatDate } from '@/lib/utils';
 import api from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import {
   Users,
@@ -20,6 +21,7 @@ import {
   UserPlus,
   Clock,
   ClipboardList,
+  ChevronRight,
 } from 'lucide-react';
 
 interface StatsData {
@@ -27,6 +29,31 @@ interface StatsData {
   active_staff?: number;
   total_branches?: number;
   total_departments?: number;
+}
+
+interface RosterSummary {
+  id: string;
+  week_start_date: string;
+  week_end_date: string;
+  floor_manager?: string;
+  floor_manager_name?: string;
+  department_name?: string;
+  branch_name?: string;
+  staff_count?: number;
+  assignment_count?: number;
+}
+
+interface ReviewSummary {
+  id: string;
+  staff_name?: string;
+  staff_id?: string;
+  role_name?: string;
+  branch_name?: string;
+  department_name?: string;
+  overall_rating?: number;
+  rating?: number;
+  week_start_date?: string;
+  reviewer_name?: string;
 }
 
 interface ActionCard {
@@ -40,6 +67,8 @@ interface ActionCard {
 export default function DashboardPage() {
   const { user } = useAuth();
   const [stats, setStats] = useState<StatsData>({});
+  const [recentRosters, setRecentRosters] = useState<RosterSummary[]>([]);
+  const [recentReviews, setRecentReviews] = useState<ReviewSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const roleCategory = user?.role_name ? getRoleCategory(user.role_name) : 'general';
@@ -48,10 +77,12 @@ export default function DashboardPage() {
     const fetchStats = async () => {
       try {
         if (roleCategory === 'senior_admin') {
-          const [staffStats, branches, departments] = await Promise.all([
+          const [staffStats, branches, departments, rostersData, reviewsData] = await Promise.all([
             api.getStaffStats().catch(() => ({ total_staff: 0, active_staff: 0 })),
             api.getBranches().catch(() => []),
             api.getDepartments().catch(() => []),
+            api.getAllRosters().catch(() => ({ rosters: [] })),
+            api.getAllStaffReviews().catch(() => []),
           ]);
           setStats({
             total_staff: staffStats?.total_staff || 0,
@@ -59,6 +90,12 @@ export default function DashboardPage() {
             total_branches: Array.isArray(branches) ? branches.length : 0,
             total_departments: Array.isArray(departments) ? departments.length : 0,
           });
+          // Get latest 5 rosters
+          const rosters = rostersData?.rosters || [];
+          setRecentRosters(rosters.slice(0, 5) as RosterSummary[]);
+          // Get latest 5 reviews
+          const reviews = Array.isArray(reviewsData) ? reviewsData : [];
+          setRecentReviews(reviews.slice(0, 5) as ReviewSummary[]);
         }
       } catch (error) {
         console.error('Failed to fetch stats:', error);
@@ -308,6 +345,116 @@ export default function DashboardPage() {
           ))}
         </div>
       </div>
+
+      {/* Recent Rosters Section - Only for Senior Admin */}
+      {roleCategory === 'senior_admin' && recentRosters.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Recent Rosters</h2>
+            <Link href="/dashboard/rosters">
+              <Button variant="ghost" size="sm">
+                View All <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {recentRosters.map((roster) => (
+              <Card key={roster.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="pt-5">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="p-2 bg-green-100 rounded-lg">
+                        <Calendar className="w-4 h-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm text-gray-900">
+                          {formatDate(roster.week_start_date)}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          to {formatDate(roster.week_end_date)}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                      {roster.staff_count || 0} staff
+                    </span>
+                  </div>
+                  <div className="space-y-1 text-sm">
+                    <p className="text-gray-600">
+                      <span className="font-medium">Branch:</span> {roster.branch_name || 'N/A'}
+                    </p>
+                    <p className="text-gray-600">
+                      <span className="font-medium">Dept:</span> {roster.department_name || 'N/A'}
+                    </p>
+                    <p className="text-gray-600">
+                      <span className="font-medium">Manager:</span> {roster.floor_manager || roster.floor_manager_name || 'N/A'}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Recent Reviews Section - Only for Senior Admin */}
+      {roleCategory === 'senior_admin' && recentReviews.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Recent Reviews</h2>
+            <Link href="/dashboard/reviews">
+              <Button variant="ghost" size="sm">
+                View All <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {recentReviews.map((review) => (
+              <Card key={review.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="pt-5">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="p-2 bg-yellow-100 rounded-lg">
+                        <Star className="w-4 h-4 text-yellow-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm text-gray-900">
+                          {review.staff_name || 'Unknown Staff'}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {review.role_name || 'N/A'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                      <span className="text-sm font-medium">
+                        {(review.overall_rating || review.rating || 0).toFixed(1)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-1 text-sm">
+                    <p className="text-gray-600">
+                      <span className="font-medium">Branch:</span> {review.branch_name || 'N/A'}
+                    </p>
+                    <p className="text-gray-600">
+                      <span className="font-medium">Dept:</span> {review.department_name || 'N/A'}
+                    </p>
+                    <p className="text-gray-600">
+                      <span className="font-medium">By:</span> {review.reviewer_name || 'N/A'}
+                    </p>
+                    {review.week_start_date && (
+                      <p className="text-xs text-gray-400">
+                        Week of {formatDate(review.week_start_date)}
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* User Info Card for General Staff */}
       {roleCategory === 'general' && (

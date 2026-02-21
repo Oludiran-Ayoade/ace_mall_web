@@ -275,6 +275,17 @@ class ApiClient {
     return this.request(`/roster/by-branch-department?${params.toString()}`);
   }
 
+  async getAllRosters(filters?: { branch_id?: string; department_id?: string; year?: string; month?: string }): Promise<{ success: boolean; rosters: Roster[]; count: number }> {
+    const params = new URLSearchParams();
+    if (filters?.branch_id) params.append('branch_id', filters.branch_id);
+    if (filters?.department_id) params.append('department_id', filters.department_id);
+    if (filters?.year) params.append('year', filters.year);
+    if (filters?.month) params.append('month', filters.month);
+    
+    const queryString = params.toString();
+    return this.request(`/roster/all${queryString ? `?${queryString}` : ''}`);
+  }
+
   async getMyTeam(): Promise<{ team: User[]; count: number }> {
     return this.request('/roster/my-team');
   }
