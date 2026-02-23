@@ -84,7 +84,18 @@ class ApiClient {
       return data;
     } catch (error) {
       console.error(`[API] Error fetching ${endpoint}:`, error);
-      throw error;
+      // Provide user-friendly error messages
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('Unable to connect. Please check your internet connection and try again.');
+      }
+      if (error instanceof Error) {
+        // Keep specific error messages but make generic ones friendly
+        if (error.message === 'Request failed' || error.message === 'Failed to fetch') {
+          throw new Error('Something went wrong. Please try again later.');
+        }
+        throw error;
+      }
+      throw new Error('An unexpected error occurred. Please try again later.');
     }
   }
 

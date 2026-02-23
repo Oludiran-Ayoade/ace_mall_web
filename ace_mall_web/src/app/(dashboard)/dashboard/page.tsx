@@ -346,57 +346,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Recent Rosters Section - Only for Senior Admin */}
-      {roleCategory === 'senior_admin' && recentRosters.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Recent Rosters</h2>
-            <Link href="/dashboard/rosters">
-              <Button variant="ghost" size="sm">
-                View All <ChevronRight className="w-4 h-4 ml-1" />
-              </Button>
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {recentRosters.map((roster) => (
-              <Card key={roster.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="pt-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="p-2 bg-green-100 rounded-lg">
-                        <Calendar className="w-4 h-4 text-green-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-sm text-gray-900">
-                          {formatDate(roster.week_start_date)}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          to {formatDate(roster.week_end_date)}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-                      {roster.staff_count || 0} staff
-                    </span>
-                  </div>
-                  <div className="space-y-1 text-sm">
-                    <p className="text-gray-600">
-                      <span className="font-medium">Branch:</span> {roster.branch_name || 'N/A'}
-                    </p>
-                    <p className="text-gray-600">
-                      <span className="font-medium">Dept:</span> {roster.department_name || 'N/A'}
-                    </p>
-                    <p className="text-gray-600">
-                      <span className="font-medium">Manager:</span> {roster.floor_manager || roster.floor_manager_name || 'N/A'}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Recent Reviews Section - Only for Senior Admin */}
       {roleCategory === 'senior_admin' && recentReviews.length > 0 && (
         <div>
