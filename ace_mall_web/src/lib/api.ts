@@ -274,6 +274,10 @@ class ApiClient {
     });
   }
 
+  async getRosterById(id: string): Promise<{ success: boolean; roster: Roster }> {
+    return this.request<{ success: boolean; roster: Roster }>(`/roster/${id}`);
+  }
+
   async getRosterForWeek(startDate: string): Promise<Roster> {
     return this.request(`/roster/week?start_date=${startDate}`);
   }

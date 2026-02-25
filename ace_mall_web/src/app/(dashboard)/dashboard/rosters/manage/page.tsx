@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '@/lib/api';
 import { User, RosterAssignment } from '@/types';
@@ -30,6 +30,7 @@ interface StaffShift {
 
 export default function RosterManagePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const [teamMembers, setTeamMembers] = useState<User[]>([]);
   const [staffShifts, setStaffShifts] = useState<StaffShift[]>([]);
@@ -44,41 +45,82 @@ export default function RosterManagePage() {
     monday.setHours(0, 0, 0, 0);
     return monday;
   });
+  const [isViewMode, setIsViewMode] = useState(false);
+
+  const rosterId = searchParams.get('roster_id');
+  const [rosterData, setRosterData] = useState<any>(null);
 
   useEffect(() => {
-    const fetchTeamMembers = async () => {
+    const loadData = async () => {
+      setIsLoading(true);
       try {
-        const allStaff = await api.getAllStaff();
-        const filtered = Array.isArray(allStaff)
-          ? allStaff.filter((s: User) => {
-              if (user?.department_id && s.department_id !== user.department_id) return false;
-              if (user?.branch_id && s.branch_id !== user.branch_id) return false;
-              if (s.id === user?.id) return false;
-              return true;
-            })
-          : [];
+        // If roster_id is provided, load existing roster
+        if (rosterId) {
+          setIsViewMode(true);
+          const response = await api.getRosterById(rosterId);
+          if (response.success && response.roster) {
+            setRosterData(response.roster);
+            // Set the week start date from the roster
+            if (response.roster.week_start_date) {
+              const weekStart = new Date(response.roster.week_start_date);
+              weekStart.setHours(0, 0, 0, 0);
+              setCurrentWeekStart(weekStart);
+            }
+            
+            // Load assignments into staffShifts format
+            if (response.roster.assignments && response.roster.assignments.length > 0) {
+              const shiftMap: Record<string, Record<string, string>> = {};
+              
+              response.roster.assignments.forEach((assignment: any) => {
+                if (!shiftMap[assignment.staff_id]) {
+                  shiftMap[assignment.staff_id] = {};
+                }
+                shiftMap[assignment.staff_id][assignment.day_of_week] = assignment.shift_type;
+              });
+              
+              const shifts: StaffShift[] = Object.entries(shiftMap).map(([staffId, shifts]) => ({
+                staff_id: staffId,
+                staff_name: response.roster?.assignments?.find((a: any) => a.staff_id === staffId)?.staff_name || 'Unknown',
+                shifts: shifts,
+              }));
+              
+              setStaffShifts(shifts);
+            }
+          }
+        } else {
+          // Normal flow - load team members for creating new roster
+          const allStaff = await api.getAllStaff();
+          const filtered = Array.isArray(allStaff)
+            ? allStaff.filter((s: User) => {
+                if (user?.department_id && s.department_id !== user.department_id) return false;
+                if (user?.branch_id && s.branch_id !== user.branch_id) return false;
+                if (s.id === user?.id) return false;
+                return true;
+              })
+            : [];
 
-        setTeamMembers(filtered);
-        
-        // Initialize shifts for each team member
-        const initialShifts: StaffShift[] = filtered.map((member: User) => ({
-          staff_id: member.id,
-          staff_name: member.full_name,
-          shifts: {},
-        }));
-        setStaffShifts(initialShifts);
+          setTeamMembers(filtered);
+          
+          // Initialize shifts for each team member
+          const initialShifts: StaffShift[] = filtered.map((member: User) => ({
+            staff_id: member.id,
+            staff_name: member.full_name,
+            shifts: {},
+          }));
+          setStaffShifts(initialShifts);
+        }
       } catch (error) {
-        console.error('Failed to fetch team:', error);
-        toast({ title: 'Failed to load team members', variant: 'destructive' });
+        console.error('Failed to load data:', error);
+        toast({ title: 'Failed to load roster data', variant: 'destructive' });
       } finally {
         setIsLoading(false);
       }
     };
 
     if (user) {
-      fetchTeamMembers();
+      loadData();
     }
-  }, [user]);
+  }, [user, rosterId]);
 
   const navigateWeek = (direction: 'prev' | 'next') => {
     setCurrentWeekStart((prev) => {
@@ -185,11 +227,11 @@ export default function RosterManagePage() {
             <p className="text-gray-500">Create weekly schedule for your team</p>
           </div>
         </div>
-        <Button onClick={handleSave} disabled={isSaving}>
+        <Button onClick={handleSave} disabled={isSaving || isViewMode}>
           {isSaving ? <BouncingDots /> : (
             <>
               <Save className="w-4 h-4 mr-2" />
-              Save Roster
+              {isViewMode ? 'View Mode' : 'Save Roster'}
             </>
           )}
         </Button>
