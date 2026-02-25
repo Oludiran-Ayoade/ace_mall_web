@@ -249,7 +249,7 @@ export default function RosterHistoryPage() {
               <Card 
                 key={roster.id} 
                 className="hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => router.push('/dashboard/rosters')}
+                onClick={() => router.push(`/dashboard/rosters/manage?roster_id=${roster.id}`)}
               >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
