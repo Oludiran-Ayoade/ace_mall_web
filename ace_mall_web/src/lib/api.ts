@@ -245,8 +245,11 @@ class ApiClient {
   }
 
   async getStaffReport(params: Record<string, string>): Promise<{ staff: any[]; count: number }> {
+    // Add cache-busting timestamp to force fresh fetch
+    const cacheBuster = `_t=${Date.now()}`;
     const queryString = new URLSearchParams(params).toString();
-    return this.request<{ staff: any[]; count: number }>(`/hr/staff-report?${queryString}`);
+    const separator = queryString ? '&' : '?';
+    return this.request<{ staff: any[]; count: number }>(`/hr/staff-report?${queryString}${separator}${cacheBuster}`);
   }
 
   // ============================================
