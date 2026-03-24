@@ -481,12 +481,12 @@ class ApiService {
   
   Future<List<Map<String, dynamic>>> getAllStaffReviews() async {
     try {
-      
-      final response = await http.get(
+      final client = _getClient();
+      final headers = await _getHeaders(includeAuth: true);
+      final response = await _makeRequest(() => client.get(
         Uri.parse('$baseUrl/hr/reviews'),
-        headers: await _getHeaders(includeAuth: true),
-      );
-      
+        headers: headers,
+      ));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
