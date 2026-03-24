@@ -47,7 +47,8 @@ func GetAllStaffReviews(c *gin.Context) {
 
 	reviews := []map[string]interface{}{}
 	for rows.Next() {
-		var id, staffID, staffName, roleName, departmentName, branchID, branchName, comments, reviewerName string
+		var id, staffID, staffName, roleName, comments, reviewerName string
+		var departmentName, branchID, branchName sql.NullString
 		var weekStart, weekEnd time.Time
 		var overallRating, attitudeRating, punctualityRating, performanceRating int
 
@@ -72,14 +73,29 @@ func GetAllStaffReviews(c *gin.Context) {
 			continue
 		}
 
+		deptName := ""
+		if departmentName.Valid {
+			deptName = departmentName.String
+		}
+
+		brID := ""
+		if branchID.Valid {
+			brID = branchID.String
+		}
+
+		brName := ""
+		if branchName.Valid {
+			brName = branchName.String
+		}
+
 		reviews = append(reviews, map[string]interface{}{
 			"id":                 id,
 			"staff_id":           staffID,
 			"staff_name":         staffName,
 			"role_name":          roleName,
-			"department_name":    departmentName,
-			"branch_id":          branchID,
-			"branch_name":        branchName,
+			"department_name":    deptName,
+			"branch_id":          brID,
+			"branch_name":        brName,
 			"week_start_date":    weekStart.Format("2006-01-02"),
 			"week_end_date":      weekEnd.Format("2006-01-02"),
 			"overall_rating":     overallRating,
